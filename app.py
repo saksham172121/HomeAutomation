@@ -12,17 +12,14 @@ CORS(app)  # Allows frontend requests
 DB_URL = os.getenv("DATABASE_URL", "bsee4lpbysgnyc5r3sb0-postgresql.services.clever-cloud.com")
 
 # MQTT Configuration
-MQTT_BROKER = "55eff29e26244f5badcfabffa6ae48c3.s1.eu.hivemq.cloud"
-MQTT_PORT = 8883
-MQTT_USER = "dr.heinz"
-MQTT_PASSWORD = "Doofenshm1rtz"
+MQTT_BROKER = "broker.hivemq.com"
 MQTT_TOPIC_LIGHT = "home/light"
 MQTT_TOPIC_FAN = "home/fan"
 MQTT_TOPIC_TEMPERATURE = "home/temperature"
 MQTT_TOPIC_HUMIDITY = "home/humidity"
 
 # MQTT Client for Receiving Messages
-mqtt_client = mqtt.Client()
+mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)  # Use latest API version
 mqtt_client.connect(MQTT_BROKER, 1883, 60)
 mqtt_client.subscribe([(MQTT_TOPIC_TEMPERATURE, 0), (MQTT_TOPIC_HUMIDITY, 0)])
 
