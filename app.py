@@ -21,6 +21,7 @@ MQTT_TOPIC_HUMIDITY = "home/humidity"
 # MQTT Client for Receiving Messages
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)  # Use latest API version
 mqtt_client.connect(MQTT_BROKER, 1883, 60)
+mqtt_client.publish(MQTT_TOPIC_LIGHT, "test-message")
 mqtt_client.subscribe([(MQTT_TOPIC_TEMPERATURE, 0), (MQTT_TOPIC_HUMIDITY, 0)])
 
 sensor_data = {"temperature": 0, "humidity": 0}
