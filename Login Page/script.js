@@ -1,10 +1,10 @@
-document.getElementById("login-form").addEventListener("submit", function(e) {
+document.getElementById("loginForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    fetch("https://your-api-url.onrender.com/login", {
+    fetch("https://homeautomation-xnln.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })

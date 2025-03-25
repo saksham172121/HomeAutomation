@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # Allows frontend requests
 
 # PostgreSQL Database Configuration (Replace with your Render DB details)
-DB_URL = os.getenv("DATABASE_URL", "bsee4lpbysgnyc5r3sb0-postgresql.services.clever-cloud.com")
+DB_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_NJr1KkC0TfLu@ep-empty-wave-a10w92mn-pooler.ap-southeast-1.aws.neon.tech/HomeAutomation?sslmode=require")
 
 # MQTT Configuration
 MQTT_BROKER = "broker.hivemq.com"
