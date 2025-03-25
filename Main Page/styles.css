@@ -1,0 +1,244 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: lexend;
+}
+
+/* Full-screen background fix */
+body {
+    display: flex;
+    height: 100vh;
+    background: #0D0F36;
+    color: white;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #131646;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Sidebar Menu */
+.sidebar h2 {
+    font-size: 20px;
+    margin: 15px 0;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar li {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.sidebar li:hover,
+.sidebar li.active {
+    background: #2A38E0;
+    border-radius: 5px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: margin-left 0.3s;
+}
+
+.main-content.shifted {
+    margin-left: -250px;
+}
+
+/* Room Selector */
+.room-selector {
+    position: relative;
+    display: flex;
+    width: 420px;
+    background: #4D5BA6;
+    border-radius: 20px;
+    padding: 5px;
+    margin-top: 20px;
+}
+
+/* Room buttons */
+.room-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    position: relative;
+    z-index: 2;
+}
+
+/* Sliding Effect */
+.room-slider {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background: #2A38E0;
+    border-radius: 20px;
+    transition: transform 0.3s ease-in-out;
+    left: 0;
+    top: 0;
+}
+/* Hamburger Menu Button */
+.hamburger {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 1000; /* Make sure it's always clickable */
+    display: none; /* Hidden when sidebar is visible */
+}
+
+/* Show hamburger when sidebar is hidden */
+.sidebar.hidden + .main-content .hamburger {
+    display: block;
+}
+
+.container {
+    width: 71%;
+    height: 78%;
+    min-height: 70vh;
+    /* min-width: 70vw; */
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 5%;
+}
+
+.tile {
+    background: #2222AA; /* Dark blue */
+    border-radius: 25px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 
+        inset 5px 5px 10px rgba(0, 0, 0, 0.3),  /* Inner shadow */
+        inset -5px -5px 10px rgba(255, 255, 255, 0.09), 
+        5px 5px 10px rgba(0, 0, 0, 0.4),       /* Outer shadow */
+        -5px -5px 10px rgba(255, 255, 255, 0.023);
+    transition: all 0.2s ease-in-out;}
+
+.tile:hover {
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.4), 
+        inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+}
+
+
+.big-tile {
+    grid-column: span 4;
+    grid-row: span 4;
+}
+.long-tile {
+    grid-column: span 4;
+    grid-row: span 2;
+}
+.button-tile {
+    grid-column: span 2;
+    grid-row: span 2;
+    cursor: pointer;
+}
+.button-tile.active, .button-tile:hover {
+    background-color: #8888FF;
+}
+
+
+.ghost {
+    opacity: 0.5;
+    background: #555;
+}
+.dragging {
+    opacity: 0.8;
+    scale: 1.05;
+}
+
+
+.drag-handle {
+    cursor: grab;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    border-radius: 5px;
+    width: 30px;
+    display: inline-block;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance:none;
+    width:100%;
+    height:25px;
+    background:rgba(255, 255, 255, 0.187);
+    outline:none;
+    border-radius:20px;
+      &::-webkit-slider-thumb {
+        -webkit-appearance:none;
+        appearance:none;
+        width:12px;
+        height:40px;
+        background:rgb(10, 103, 218);
+        border-radius:8px;
+        cursor:pointer;
+        transition:0.1s ease-in-out;
+      }
+      
+  }
+  .slider-container {
+    position:relative;
+    width:300px;
+    margin: 0 auto;
+    & #slider-value {
+      position:relative;
+      display:block;
+      transform: scale(0,0) translateX(-50%);
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      line-height:60px;
+      color:#FFF;
+      text-align:center;
+      font-size:1.5em;
+      font-weight:bolder;
+      opacity:0;
+      top:-40px;
+      z-index:-1;
+      transition:0.15s top ease-in-out, 0.15s opacity ease-in-out 0.05s, 0.15s scale ease-in-out;
+    }
+  }
+  

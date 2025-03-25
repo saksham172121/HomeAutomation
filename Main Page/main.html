@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Automation Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <h2>Home Automator</h2>
+        <ul>
+            <li onclick="selectMenu(this)">Devices</li>
+            <li onclick="selectMenu(this)">Room 1</li>
+            <li onclick="selectMenu(this)">Room 2</li>
+            <li onclick="selectMenu(this)">Automations</li>
+            <li onclick="selectMenu(this)">Settings</li>
+        </ul>
+    </div>
+    <!-- Hamburger Button (Top Left) -->
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Welcome, User</h1>
+
+        <!-- Room Selector -->
+        <div class="room-selector">
+            <div class="room-slider"></div>
+            <button class="room-btn active" onclick="switchRoom(0)">Room 1</button>
+            <button class="room-btn" onclick="switchRoom(1)">Room 2</button>
+        </div>
+        <div class="container" id="tile-grid">
+            <div class="tile big-tile">Graph Area
+                <div class="drag-handle">☰</div>
+            </div>
+            <div class="tile big-tile">Graph Area
+                <div class="drag-handle">☰</div>
+            </div>
+            <div class="tile long-tile">
+                <div class="drag-handle">☰</div>
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="0" class="slider">
+                  </div>  
+            </div>
+            <div class="tile long-tile">
+                <div class="drag-handle">☰</div>
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="0" class="slider">
+                  </div> 
+            </div>
+            <div class="tile button-tile">Button
+                <div class="drag-handle">☰</div>
+            </div>
+            <div class="tile button-tile">Button
+                <div class="drag-handle">☰</div>
+            </div>
+            <div class="tile button-tile">Button
+                <div class="drag-handle">☰</div>
+            </div>
+            <div class="tile button-tile">Button
+                <div class="drag-handle">☰</div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+</body>
+</html>
