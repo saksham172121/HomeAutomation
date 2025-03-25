@@ -13,7 +13,7 @@ DB_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_NJr1KkC0TfLu@e
 
 # MQTT Configuration
 MQTT_BROKER = "broker.hivemq.com"
-MQTT_TOPIC_LIGHT = "home/light"
+MQTT_TOPIC_LIGHT = "homeautomation/led"
 MQTT_TOPIC_FAN = "home/fan"
 MQTT_TOPIC_TEMPERATURE = "home/temperature"
 MQTT_TOPIC_HUMIDITY = "home/humidity"
@@ -65,8 +65,12 @@ def login():
 
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
+
+    cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", (username, password))
     user = cursor.fetchone()
+
+    print("DEBUG: User found in DB:", user)  # Debugging output
+
     cursor.close()
     conn.close()
 
@@ -75,14 +79,17 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
-@app.route('/control/light', methods=['POST'])
-def control_light():
+
+@app.route('/toggle_led', methods=['POST'])
+def toggle_led():
     data = request.json
     state = data.get("state")  # "on" or "off"
-    
-    publish.single(MQTT_TOPIC_LIGHT, state, hostname=MQTT_BROKER)
-    
-    return jsonify({"message": f"Light turned {state}"}), 200
+
+    if state not in ["on", "off"]:
+        return jsonify({"error": "Invalid state"}), 400
+
+    mqtt_client.publish(MQTT_TOPIC_LIGHT, state)
+    return jsonify({"message": f"LED turned {state}"}), 200
 
 @app.route('/control/fan', methods=['POST'])
 def control_fan():

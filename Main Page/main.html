@@ -54,16 +54,16 @@
                     <input type="range" min="0" max="100" value="0" class="slider">
                   </div> 
             </div>
-            <div class="tile button-tile">Button
+            <div class="tile button-tile" id="toggleLed">Button
                 <div class="drag-handle">☰</div>
             </div>
-            <div class="tile button-tile">Button
+            <div class="tile button-tile" id="toggleLed">Button
                 <div class="drag-handle">☰</div>
             </div>
-            <div class="tile button-tile">Button
+            <div class="tile button-tile" id="toggleLed">Button
                 <div class="drag-handle">☰</div>
             </div>
-            <div class="tile button-tile">Button
+            <div class="tile button-tile" id="toggleLed">Button
                 <div class="drag-handle">☰</div>
             </div>
         </div>
@@ -73,5 +73,21 @@
 
     <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+    <script>
+        let lightOn = false; // Track light state
+    
+        document.getElementById("toggleLed").addEventListener("click", function() {
+            lightOn = !lightOn; // Toggle state
+    
+            fetch("https://homeautomation-xnln.onrender.com/toggle_led", {  // Flask API
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ state: lightOn ? "on" : "off" }) // Send on/off
+            })
+            .then(response => response.json())
+            .then(data => console.log(data.message))
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
 </body>
 </html>
