@@ -9,10 +9,13 @@ app = Flask(__name__)
 CORS(app)  # Allows frontend requests
 
 # PostgreSQL Database Configuration (Replace with your Render DB details)
-DB_URL = os.getenv("DATABASE_URL", "your_postgres_url_here")
+DB_URL = os.getenv("DATABASE_URL", "bsee4lpbysgnyc5r3sb0-postgresql.services.clever-cloud.com")
 
 # MQTT Configuration
-MQTT_BROKER = "broker.hivemq.com"
+MQTT_BROKER = "55eff29e26244f5badcfabffa6ae48c3.s1.eu.hivemq.cloud"
+MQTT_PORT = 8883
+MQTT_USER = "dr.heinz"
+MQTT_PASSWORD = "Doofenshm1rtz"
 MQTT_TOPIC_LIGHT = "home/light"
 MQTT_TOPIC_FAN = "home/fan"
 MQTT_TOPIC_TEMPERATURE = "home/temperature"
