@@ -1,0 +1,344 @@
+/* Sidebar and main */
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: lexend;
+}
+
+/* Full-screen background fix */
+body {
+    display: flex;
+    height: 100vh;
+    background: #17217e;
+    color: white;
+    flex-direction: column;
+}
+.section{
+    height: 100vh;
+    width: 100vw;
+    display: inherit;
+}
+/* Sidebar */
+.sidebar {
+    width: 20vw;
+    background: #131646;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+    position: fixed; /* Fix sidebar position */
+    left: 0;
+    top: 0;
+    height: 100vh; /* Make it full-height */
+    z-index: 1000; /* Ensure it's above the main content */
+    
+}
+.menu-btn {
+    position: fixed; /* Keeps it fixed */
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 1000; /* Ensures it's on top */
+}
+
+/* Sidebar stays hidden initially */
+.sidebar.hidden {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Sidebar when visible */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: #131646;
+    padding: 3% 1% 0 1%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Sidebar Menu */
+.sidebar h2 {
+    font-size: 20px;
+    margin: 15px 0;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar li {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.sidebar li:hover{
+    background: #191938;
+}
+.sidebar li.active {
+    background: #2A38E0;
+    border-radius: 5px;
+}
+.sidebar button {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 10px rgba(255, 65, 108, 0.3);
+    position: absolute;
+    bottom: 10vh;
+    left: 30%;
+}
+
+.sidebar button:hover {
+    background: linear-gradient(135deg, #ff2e63, #ff6f61);
+    transform: scale(1.05);
+}
+
+.sidebar button:active {
+    transform: scale(0.95);
+}
+/* MAIN CONTENT NOW */
+.main-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    /* justify-content: start; */
+    align-items: center;
+    flex-direction: column;
+    }
+
+.main-container h1{
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+#addRuleBtn {
+    background-color: #17217e; /* Primary color */
+    color: white;
+    border: 0.3rem solid white; /* Added white border */
+    padding: 1.8rem 1.8rem;
+    font-size: 2rem;
+    margin: 4vh 0;
+    border-radius: 20px; /* Rounded button */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s, border-color 0.3s ease;
+}
+
+#addRuleBtn:hover {
+    background-color: #fff; /* Darker shade on hover */
+    transform: scale(1.05);
+    color: #131646;
+    border-color: #ddd; /* Lighten border on hover */
+}
+#addRuleBtn:active{
+    transform: scale(0.95);
+}
+
+
+.rules-container {
+    background-color: #2A38E0; /* Lighter background */
+    padding: 15px;
+    border-radius: 31px; /* Rounded corners */
+    width: 100%;
+    max-width: 75vw;
+    margin: 2rem auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15); /* Slightly lighter background */
+    padding: 12px 16px;
+    border-radius: 21px;
+    margin-bottom: 10px;
+}
+
+.rule-name {
+    font-size: 16px;
+    color: white;
+    font-weight: 500;
+}
+
+.rule-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.rule-buttons button {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rule-buttons button:hover {
+    background-color: white;
+    color: #17217e;
+}
+
+/* Popup Overlay - Covers Full Screen */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensures it stays on top */
+}
+
+/* Popup Box - Centered */
+.popup {
+    background: #2A38E0; /* Matching theme color */
+    padding: 20px;
+    border-radius: 31px;
+    width: 60%;
+    /* height: max-content; */
+    height: fit-content;
+    text-align: center;
+    color: white;
+    position: relative;
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+    z-index: 1001; /* Ensures it is above everything */
+}
+
+/* Popup Content */
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+#acControl{
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6rem;
+}
+
+.device-control {
+    display: none; /* Hide all controls initially */
+    margin-top: 10px;
+}
+
+
+/* Close Button */
+.close {
+    position: absolute;
+    top: 1vh;
+    right: 2vw;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: red;
+}
+.popup-content label{
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+/* Apply consistent input and select styling */
+.popup input, 
+.popup select {
+    width: 100%;
+    padding: 10px;
+    border: 0.2rem solid white;  /* Explicit border */
+    border-radius: 16px;  /* Consistent rounded corners */
+    background-color: transparent;  /* Match theme */
+    color: white;
+    font-size: 16px;
+    appearance: none; /* Remove default browser styling */
+    -webkit-appearance: none; /* Remove Safari default */
+    -moz-appearance: none; /* Remove Firefox default */
+    outline: none;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Fix dropdown caret in Safari */
+.popup select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20' fill='white'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 30px;
+    cursor: pointer;
+}
+
+/* Input and Select Focus Effect */
+.popup input:focus,
+.popup select:focus {
+    border-color: #ffcc00;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Save Rule Button */
+#saveRule {
+    background-color: #2A38E0; /* Primary color */
+    color: white;
+    border: 2px solid white;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+    max-width: max-content;
+}
+#saveRule:hover {
+    background-color: #2633a5; /* Darker primary color */
+    border: #191938;
+}
+
+
+#saveRule:active {
+    background-color: #0f1456;
+}
+
+.fav-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.fav-btn.favorite {
+    color: #2633a5;
+    background-color: #FFF;
+} 

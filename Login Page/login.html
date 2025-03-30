@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles_login.css">
-  
+  <link rel="stylesheet" href="mediaqueries_login.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <title>Document</title>
 </head>
 <body>
@@ -32,9 +33,27 @@
       <label for="password" class="visually-hidden">Password</label>
       <input type="password" id="password" class="input-field password-field" placeholder="Password" aria-label="Password">
       <div class="form-actions">
-        <a href="#" class="forgot-password">Forgot Password?</a>
+        <a href="#" onclick="showForm('forgotPasswordForm')" class="forgot-password">Forgot Password?</a>
         <button class="button-86" type="submit" role="button">LOGIN</button>
-        <a href="#" class="register-link">Register?</a>
+        <a href="#"  onclick="showForm('registerForm')" class="register-link">Register?</a>
+      </div>
+    </form>
+    <form class="login-form hidden" id="registerForm">
+      <img src="logo.png" class="logo" alt="Company logo">
+      <input type="text" id="register-username" class="input-field" placeholder="Username" aria-label="Username">
+      <input type="email" id="register-email" class="input-field" placeholder="Email" aria-label="Email">
+      <input type="password" id="register-password" class="input-field" placeholder="Password" aria-label="Password">
+      <div class="form-actions">
+        <button class="button-86" type="submit">REGISTER</button>
+        <a href="#" onclick="showForm('loginForm')" class="login-link">Back to Login</a>
+      </div>
+    </form>
+    <form class="login-form hidden" id="forgotPasswordForm">
+      <img src="logo.png" class="logo" alt="Company logo">
+      <input type="email" id="forgot-email" class="input-field" placeholder="Enter your email" aria-label="Email">
+      <div class="form-actions">
+        <button class="button-86" type="submit">Reset Password</button>
+        <a href="#" onclick="showForm('loginForm')" class="login-link">Back to Login</a>
       </div>
     </form>
     <script src="script_login.js"></script>

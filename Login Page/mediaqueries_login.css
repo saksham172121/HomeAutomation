@@ -1,0 +1,61 @@
+@media (max-width: 991px) {
+    .login-container {
+      padding: 100px 20px;
+    }
+    .input-field {
+        padding: 20px;
+    }
+    .username-field {
+        margin-top: 40px;
+    }
+    .form-actions {
+        padding: 0 20px;
+    }
+
+    .blob1 {
+        top: -50px;
+        left: -90px;
+        
+      }
+      
+      .blob2 {
+        bottom: -120px;
+        right: 20px;
+       
+      }
+      
+      .blob3 {
+        top: -50px;
+        right: -130px;
+        
+      }
+  }
+
+  @media screen and (max-width: 576px) {
+    .blob{
+        width: 100vw;  /* Set a fixed width */
+        height: 100vh;
+    }
+      
+    .blob1 {
+        top: -190px;
+        left: -90px;
+        
+      }
+      
+      .blob2 {
+        bottom: -190px;
+        right: 20px;
+       
+      }
+      
+      .blob3 {
+        top: -20px;
+        right: -130px;
+        
+      }
+    .login-form{
+        width: 80%;
+        max-width: none;
+    }
+    }

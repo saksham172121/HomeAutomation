@@ -1,27 +1,43 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import psycopg2
+import mysql.connector # MySQL connector
 import paho.mqtt.publish as publish
+import json
+import logging
 import paho.mqtt.client as mqtt
+import threading
+from datetime import datetime
 import os
 
 app = Flask(__name__)
 CORS(app)  # Allows frontend requests
+@app.after_request
+def after_request(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    return response
 
-# PostgreSQL Database Configuration (Replace with your Render DB details)
-DB_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_NJr1KkC0TfLu@ep-empty-wave-a10w92mn-pooler.ap-southeast-1.aws.neon.tech/HomeAutomation?sslmode=require")
-
+# MySQL Database Configuration
+DB_CONFIG = {
+    "host": "localhost",
+    "user": "home_admin",
+    "password": "your_password",
+    "database": "home_automation"
+}
 # MQTT Configuration
-MQTT_BROKER = "broker.hivemq.com"
-MQTT_TOPIC_LIGHT = "homeautomation/led"
-MQTT_TOPIC_FAN = "home/fan"
+MQTT_BROKER = "test.mosquitto.org"
 MQTT_TOPIC_TEMPERATURE = "home/temperature"
 MQTT_TOPIC_HUMIDITY = "home/humidity"
+MQTT_TOPIC_DEVICE_CONTROL = "home/device/"
+MQTT_TOPIC_AC_MODE = "home/ac/mode"
+MQTT_TOPIC_AC_FAN = "home/ac/fan"
+MQTT_TOPIC_AC_TEMP = "home/ac/temp"
+MQTT_TOPIC_AC_POWER = "home/ac/power"
 
 # MQTT Client for Receiving Messages
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)  # Use latest API version
+mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)  
 mqtt_client.connect(MQTT_BROKER, 1883, 60)
-mqtt_client.publish(MQTT_TOPIC_LIGHT, "test-message")
 mqtt_client.subscribe([(MQTT_TOPIC_TEMPERATURE, 0), (MQTT_TOPIC_HUMIDITY, 0)])
 
 sensor_data = {"temperature": 0, "humidity": 0}
@@ -29,94 +45,429 @@ sensor_data = {"temperature": 0, "humidity": 0}
 def on_message(client, userdata, msg):
     topic = msg.topic
     value = msg.payload.decode()
+    
     if topic == MQTT_TOPIC_TEMPERATURE:
-        sensor_data["temperature"] = value
+        sensor_data["temperature"] = float(value)
     elif topic == MQTT_TOPIC_HUMIDITY:
-        sensor_data["humidity"] = value
-
+        sensor_data["humidity"] = float(value)
+        
+    
+        
+    save_sensor_data(sensor_data["temperature"], sensor_data["humidity"])
+    
 mqtt_client.on_message = on_message
 mqtt_client.loop_start()
 
-# Database Connection
+# Database Connection Function
 def connect_db():
-    return psycopg2.connect(DB_URL, sslmode="require")
+    return mysql.connector.connect(**DB_CONFIG)
 
-@app.route('/register', methods=['POST'])
+# Function to Execute Actions
+def trigger_action(action):
+    if action.startswith("turn on") or action.startswith("turn off"):
+        device = action.split("turn ")[1]  # Extract device name
+        state = action.split(" ")[1]
+        publish.single(MQTT_TOPIC_DEVICE_CONTROL + device, state, hostname=MQTT_BROKER)
+    elif "set ac mode" in action:
+        mode = action.split("set ac mode ")[1]
+        publish.single(MQTT_TOPIC_AC_MODE, mode, hostname=MQTT_BROKER)
+    elif "set ac fan speed" in action:
+        speed = action.split("set ac fan speed ")[1]
+        publish.single(MQTT_TOPIC_AC_FAN, speed, hostname=MQTT_BROKER)
+    elif action == "increase ac temp":
+        publish.single(MQTT_TOPIC_AC_TEMP, "up", hostname=MQTT_BROKER)
+    elif action == "decrease ac temp":
+        publish.single(MQTT_TOPIC_AC_TEMP, "down", hostname=MQTT_BROKER)
+    elif action == "power on ac":
+        publish.single(MQTT_TOPIC_AC_POWER, "on", hostname=MQTT_BROKER)
+    elif action == "power off ac":
+        publish.single(MQTT_TOPIC_AC_POWER, "off", hostname=MQTT_BROKER)
+        
+def save_sensor_data(temperature, humidity):
+    """Stores sensor data in the database."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO sensor_logs (temperature, humidity) VALUES (%s, %s)", (temperature, humidity))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+@app.route("/register", methods=["POST"])
 def register():
     data = request.json
     username = data.get("username")
-    password = data.get("password")
+    email = data.get("email")
+    password = data.get("password")  # No hashing for now
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    if not username or not email or not password:
+        return jsonify({"error": "All fields are required"}), 400
 
     try:
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+        cursor.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", 
+                       (username, email, password))
         conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({"message": "User registered successfully!"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"message": "User registered successfully"}), 201
+    except mysql.connector.IntegrityError:
+        return jsonify({"error": "Username or email already exists"}), 409
 
-@app.route('/login', methods=['POST'])
+# 🔵 Login User Endpoint
+@app.route("/login", methods=["POST"])
 def login():
     data = request.json
     username = data.get("username")
     password = data.get("password")
-
     conn = connect_db()
     cursor = conn.cursor()
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
 
-    cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", (username, password))
+    # Check if user exists
+    cursor.execute("SELECT id, password FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
 
-    print("DEBUG: User found in DB:", user)  # Debugging output
-
-    cursor.close()
-    conn.close()
-
-    if user:
-        return jsonify({"message": "Login successful!"}), 200
+    if user and user[1] == password:  # Checking password directly (not secure)
+        status = "SUCCESS"
+        message = "Login successful"
     else:
-        return jsonify({"error": "Invalid credentials"}), 401
+        status = "FAILED"
+        message = "Invalid credentials"
+
+    # Log the login attempt
+    cursor.execute("INSERT INTO login_logs (user_id, login_time, status) VALUES (%s, %s, %s)",
+                   (user[0] if user else None, datetime.now(), status))
+    conn.commit()
+
+    if status == "SUCCESS":
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 401
 
 
-@app.route('/toggle_led', methods=['POST'])
-def toggle_led():
-    data = request.json
-    state = data.get("state")  # "on" or "off"
-
-    if state not in ["on", "off"]:
-        return jsonify({"error": "Invalid state"}), 400
-
-    mqtt_client.publish(MQTT_TOPIC_LIGHT, state)
-    return jsonify({"message": f"LED turned {state}"}), 200
-
-@app.route('/control/fan', methods=['POST'])
-def control_fan():
-    data = request.json
-    speed = data.get("speed")  # 0-100
-    
-    publish.single(MQTT_TOPIC_FAN, speed, hostname=MQTT_BROKER)
-    
-    return jsonify({"message": f"Fan speed set to {speed}%"}), 200
-
+# API to Get Sensor Data
 @app.route('/sensor-data', methods=['GET'])
 def get_sensor_data():
     return jsonify(sensor_data), 200
 
-@app.route('/set-rule', methods=['POST'])
-def set_automation_rule():
+@app.route('/sensor-history', methods=['GET'])
+def get_sensor_history():
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT temperature, humidity, timestamp FROM sensor_logs ORDER BY timestamp DESC LIMIT 50;")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(data), 200
+
+# API to Control Devices
+@app.route('/device/<device_name>', methods=['POST'])
+def control_device(device_name):
     data = request.json
-    condition = data.get("if")  # Example: "temperature > 30"
-    action = data.get("then")   # Example: "turn on fan"
+    state = data.get("state")  # "on" or "off"
 
-    temp = float(sensor_data["temperature"])
-    if condition == "temperature > 30" and temp > 30:
-        publish.single(MQTT_TOPIC_FAN, "on", hostname=MQTT_BROKER)
-        return jsonify({"message": "Automation rule triggered: Fan turned ON"}), 200
+    if state not in ["on", "off"]:
+        return jsonify({"error": "Invalid state. Use 'on' or 'off'"}), 400
 
-    return jsonify({"message": "Rule saved but not triggered"}), 200
+    # Publish the state change to MQTT without storing it in the database
+    topic = f"{MQTT_TOPIC_DEVICE_CONTROL}{device_name}"
+    print(topic)
+    publish.single(topic, state, hostname=MQTT_BROKER)
+
+    return jsonify({"message": f"{device_name} turned {state}"}), 200
+
+# API to Control AC
+@app.route('/ac', methods=['POST'])
+def control_ac():
+    data = request.json
+    mode = data.get("mode")  # "cool", "hot", "fan"
+    fan_speed = data.get("fan_speed")  # "low", "medium", "high"
+    temperature = data.get("temperature")  # int
+    power = data.get("power")  # "on" or "off"
+
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE ac_control SET mode=%s, fan_speed=%s, temperature=%s, power=%s WHERE id=1",
+                   (mode, fan_speed, temperature, power))
+    conn.commit()
+    
+    cursor.close()
+    conn.close()
+
+    publish.single(MQTT_TOPIC_AC_MODE, mode, hostname=MQTT_BROKER)
+    publish.single(MQTT_TOPIC_AC_FAN, fan_speed, hostname=MQTT_BROKER)
+    publish.single(MQTT_TOPIC_AC_TEMP, temperature, hostname=MQTT_BROKER)
+    publish.single(MQTT_TOPIC_AC_POWER, power, hostname=MQTT_BROKER)
+
+    return jsonify({"message": f"AC set to {mode} mode, {fan_speed} fan speed, {temperature}°C, power {power}"}), 200
+
+# Handle CORS preflight request
+@app.route('/rules', methods=['OPTIONS'])
+def rules_options():
+    logging.debug("Handling OPTIONS preflight request for /rules")
+    response = jsonify({"message": "CORS preflight OK"})
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response, 200
+
+
+# Fetch all automation rules with corresponding action values
+@app.route('/rules', methods=['GET'])
+def get_rules():
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT r.id, r.sensor_type, r.condition_type, r.condition_value, r.action_type, 
+                   a.toggle_state, a.fan_speed, a.ac_mode, a.temperature, a.power_state
+            FROM automation_rules r
+            LEFT JOIN action_values a ON r.id = a.rule_id;
+        """)
+        rules = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        rule_list = [
+            {
+                "id": row[0],
+                "sensor_type": row[1],
+                "condition_type": row[2],
+                "condition_value": row[3],
+                "action_type": row[4],
+                "toggle_state": row[5],
+                "fan_speed": row[6],
+                "ac_mode": row[7],
+                "temperature": row[8],
+                "power_state": row[9]
+            }
+            for row in rules
+        ]
+        return jsonify(rule_list), 200
+
+    except Exception as e:
+        logging.error(f"Error fetching rules: {e}")
+        return jsonify({"error": "Failed to fetch rules"}), 500
+
+# Add a new automation rule with action values
+@app.route('/rules', methods=['POST'])
+def add_rule():
+    try:
+        data = request.json
+        print("Received Data:", data)  # Debugging
+
+        # Extract main automation rule fields
+        sensor_type = data.get("sensor_type")
+        condition_type = data.get("condition_type")
+        condition_value = data.get("condition_value")
+        action_type = data.get("action_type")
+
+        # Extract action-specific values
+        toggle_state = data.get("toggle_state") if action_type == "toggle" else None
+        fan_speed = data.get("fan_speed") if action_type == "fan_speed" else None
+        ac_mode = data.get("ac_mode") if action_type == "ac_control" else None
+        temperature = data.get("temperature") if action_type == "ac_control" else None
+        power_state = data.get("power_state") if action_type == "ac_control" else None
+
+        # Validate required fields
+        if not all([sensor_type, condition_type, condition_value, action_type]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Insert into automation_rules
+        cursor.execute("""
+            INSERT INTO automation_rules (sensor_type, condition_type, condition_value, action_type)
+            VALUES (%s, %s, %s, %s)
+        """, (sensor_type, condition_type, condition_value, action_type))
+        
+        rule_id = cursor.lastrowid  # Get the newly inserted rule's ID
+
+        # Insert into action_values if applicable
+        if action_type in ['toggle', 'fan_speed', 'ac_control']:
+            cursor.execute("""
+                INSERT INTO action_values (rule_id, toggle_state, fan_speed, ac_mode, temperature, power_state)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (rule_id, toggle_state, fan_speed, ac_mode, temperature, power_state))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Rule added successfully!", "id": rule_id}), 201
+
+    except Exception as e:
+        logging.error(f"Error adding rule: {e}")
+        return jsonify({"error": "Failed to add rule", "details": str(e)}), 500
+
+    
+@app.route('/rules/<int:rule_id>', methods=['OPTIONS', 'DELETE'])
+def delete_rule(rule_id):
+    if request.method == 'OPTIONS':  # Handle preflight request
+        return _build_cors_prelight_response()
+
+    logging.debug(f"Handling DELETE request for /rules/{rule_id}")
+
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        print(f"Received rule_id for deletion: {rule_id}")
+
+        # Check if rule exists
+        cursor.execute("SELECT * FROM automation_rules WHERE id = %s", (rule_id,))
+        rule = cursor.fetchone()
+        if not rule:
+            return _build_cors_response(jsonify({"error": "Rule not found"}), 404)
+
+        # Delete from automation_rule_actions first (to maintain foreign key integrity)
+        cursor.execute("DELETE FROM action_values WHERE rule_id = %s", (rule_id,))
+
+        # Delete from automation_rules
+        cursor.execute("DELETE FROM automation_rules WHERE id = %s", (rule_id,))
+        
+
+        conn.commit()
+        return _build_cors_response(jsonify({"success": True, "message": "Rule deleted successfully"}), 200)
+
+    except Exception as e:
+        logging.error(f"Error deleting rule: {e}")
+        return _build_cors_response(jsonify({"error": "Failed to delete rule", "details": str(e)}), 500)
+
+    finally:
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+@app.route('/favorites', methods=['GET'])
+def get_favorites():
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT rule_id FROM favorite_rules;")
+        favorite_rule_ids = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+
+        return jsonify(favorite_rule_ids), 200  # Return only the favorite rule IDs
+
+    except Exception as e:
+        logging.error(f"Error fetching favorites: {e}")
+        return jsonify({"error": "Failed to fetch favorite rules"}), 500
+    
+    
+@app.route('/favorites/<int:rule_id>', methods=['POST'])
+def add_favorite(rule_id):
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Check how many favorites exist
+        cursor.execute("SELECT COUNT(*) FROM favorite_rules")
+        count = cursor.fetchone()[0]
+
+        if count >= 4:
+            return jsonify({"error": "Maximum of 4 favorite rules allowed"}), 400
+
+        # Insert the favorite rule
+        cursor.execute("INSERT IGNORE INTO favorite_rules (rule_id) VALUES (%s)", (rule_id,))
+        cursor.execute("UPDATE automation_rules SET is_favorite = 1 WHERE id = %s",(rule_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Rule marked as favorite"}), 200
+
+    except Exception as e:
+        logging.error(f"Error adding favorite: {e}")
+        return jsonify({"error": "Failed to add favorite", "details": str(e)}), 500
+
+@app.route('/favorites/<int:rule_id>', methods=['DELETE'])
+def remove_favorite(rule_id):
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM favorite_rules WHERE rule_id = %s", (rule_id,))
+        cursor.execute("UPDATE automation_rules SET is_favorite = 0 WHERE id = %s",(rule_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Favorite rule removed"}), 200
+
+    except Exception as e:
+        logging.error(f"Error removing favorite: {e}")
+        return jsonify({"error": "Failed to remove favorite"}), 500
+
+@app.route('/favorites/descriptions', methods=['GET'])
+def get_favorite_descriptions():
+    try:
+        conn = connect_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT ar.id, ar.sensor_type, ar.condition_type, ar.condition_value, ar.action_type,
+                   av.toggle_state, av.fan_speed, av.ac_mode, av.temperature, av.power_state
+            FROM automation_rules ar
+            LEFT JOIN action_values av ON ar.id = av.rule_id
+            WHERE ar.is_favorite = 1
+            LIMIT 4;
+        """)
+        favorites = cursor.fetchall()
+        print(favorites)
+        cursor.close()
+        conn.close()
+
+        def format_description(rule):
+            """Generate a readable description for the rule."""
+            action_desc = ""
+            if rule["action_type"] == "ac_control":
+                parts = []
+                if rule["temperature"]:
+                    parts.append(f"Temperature to {rule['temperature']}°C")
+                if rule["ac_mode"]:
+                    parts.append(f"Mode: {rule['ac_mode']}")
+                if rule["power_state"]:
+                    parts.append(f"Power: {rule['power_state']}")
+                action_desc = f"Set AC {', '.join(parts)}"
+            elif rule["action_type"] == "fan_speed":
+                action_desc = f"Set fan speed to {rule['fan_speed']}"
+            elif rule["action_type"] == "toggle":
+                action_desc = f"Turn {rule['toggle_state']}"
+            
+            return f"If {rule['sensor_type']} is {rule['condition_type']} than {rule['condition_value']}, {action_desc}"
+
+        formatted_favorites = [{"id": rule["id"], "description": format_description(rule)} for rule in favorites]
+
+        return jsonify(formatted_favorites), 200
+
+    except Exception as e:
+        logging.error(f"Error fetching favorite descriptions: {e}")
+        return jsonify({"error": "Failed to fetch favorite descriptions"}), 500
+
+# Handle OPTIONS request for preflight
+@app.before_request
+def handle_options_request():
+    if request.method == "OPTIONS":
+        response = jsonify({"message": "CORS preflight OK"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        return response, 200
+
+
+def _build_cors_prelight_response():
+    response = jsonify({"message": "CORS preflight OK"})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return response, 200
+
+def _build_cors_response(response, status=200):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return response, status
 
 if __name__ == '__main__':
     app.run(debug=True)

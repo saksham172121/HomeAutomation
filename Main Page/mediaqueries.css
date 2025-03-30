@@ -1,0 +1,146 @@
+/* Default (Desktop) - Already Covered in Your Styles */
+
+/* Tablets (768px and below) */
+@media (max-width: 768px) {
+    .main-content{
+        width: 100vw;
+    }
+
+    .room-selector{
+        width: 80vw;
+    }
+    .container{
+        width: 89vw;
+        margin: 5vh 5vw;
+        display: flex;
+        flex-direction: column;
+
+    }
+    .mobile_flex_strip{
+        display: flex !important;
+        flex-direction: row;
+        gap: 1rem;
+        
+    }
+    .mobile_flex_strip p{
+        font-size: 1rem ;
+        }
+    /* Stack the long tiles vertically */
+    .long-tile {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 2%;
+        justify-content: start;
+    }
+    .mobile_bigtile_flex{
+        display: flex !important;
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 10px;
+        scrollbar-width: none;
+        padding: 0 7vw;
+    }
+
+    .big-tile {
+        flex: 0 0 90%; /* Show one tile at a time */
+        scroll-snap-align: center;
+        margin-right: 10px;
+    }
+
+    #ac-tile{
+        padding: 0%;
+    }
+    .temperature{
+        font-size: 3rem;
+    }
+
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    /* Adjust top navigation */
+    .header {
+        padding: 10px;
+        text-align: center;
+    }
+
+    /* Make text smaller */
+    .temp-display {
+        font-size: 1.5rem;
+    }
+
+    /* Reduce padding for a compact layout */
+    .container {
+        padding: 5px;
+    }
+
+    /* Fan speed slider should fit smaller screens */
+    .fan-speed-slider {
+        width: 100%;
+    }
+
+    /* Adjust power button size */
+    .power-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Reduce spacing in mode selector */
+    .mode-selector {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* Scrollable device list */
+    .device-list {
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .mobile_flex_strip {
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        min-height: 9vh;
+    }
+    .mobile_flex_strip p{
+        font-size: 0.8rem;
+        margin: 0;
+        padding: 0;
+    }
+    .long-tile{
+        flex: 0 0 90%; /* Show one tile at a time */
+        scroll-snap-align: center;
+        margin-right: 10px;
+        /* min-height: 5vh; */
+        justify-content: space-around;
+    }
+}
+
+
+
+
+
+@media screen and (max-width: 768px) {
+    .big-tile_sec2 {
+        /* width: 100%;sf */
+        min-width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+        flex: 0 0 90%; /* Show one tile at a time */
+        scroll-snap-align: center;
+    }
+    #mobile_big-tile_sec2{
+        min-height: 80vh;
+        min-width: 85vw;
+        
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .big-tile {
+        width: 100%;
+        height: auto;
+        padding: 10px;
+    }
+}

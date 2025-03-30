@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridStack Sensor Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/8.2.0/gridstack.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/8.2.0/gridstack-all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0D0F36; color: white; text-align: center; }
+        .dashboard-container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid white;
+            border-radius: 10px;
+        }
+        .grid-stack {
+            margin: 20px auto;
+            max-width: 900px;
+            height: 600px;
+            border: 2px dashed white;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .grid-stack-item-content {
+            background: #2222AA;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+        .grid-stack-item:hover .grid-stack-item-content {
+            transform: scale(1.05);
+        }
+        .slider { width: 100%; margin-top: 10px; }
+        .chart-container { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <h1>GridStack Sensor Dashboard</h1>
+    <div class="dashboard-container">
+        <div class="grid-stack">
+            <div class="grid-stack-item" gs-w="2" gs-h="1"><div class="grid-stack-item-content">Button 1</div></div>
+            <div class="grid-stack-item" gs-w="2" gs-h="1"><div class="grid-stack-item-content">Button 2</div></div>
+            <div class="grid-stack-item" gs-w="3" gs-h="1"><div class="grid-stack-item-content">Slider <input type="range" class="slider"></div></div>
+            <div class="grid-stack-item" gs-w="3" gs-h="1"><div class="grid-stack-item-content">Slider <input type="range" class="slider"></div></div>
+            <div class="grid-stack-item" gs-w="4" gs-h="2"><div class="grid-stack-item-content chart-container"><canvas id="lineChart"></canvas></div></div>
+            <div class="grid-stack-item" gs-w="4" gs-h="2"><div class="grid-stack-item-content chart-container"><canvas id="doughnutChart"></canvas></div></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize GridStack
+        var grid = GridStack.init({ animate: true, cellHeight: 120, float: true, maxRow: 4 });
+
+        // Line Chart
+        new Chart(document.getElementById("lineChart"), {
+            type: "line",
+            data: {
+                labels: ["12:00", "12:10", "12:20"],
+                datasets: [{ label: "Temperature", data: [22, 24, 23], borderColor: "yellow", fill: false }]
+            }
+        });
+
+        // Doughnut Chart
+        new Chart(document.getElementById("doughnutChart"), {
+            type: "doughnut",
+            data: {
+                labels: ["Humidity", "Remaining"],
+                datasets: [{ data: [60, 40], backgroundColor: ["cyan", "gray"] }]
+            }
+        });
+    </script>
+</body>
+</html>
