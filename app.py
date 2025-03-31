@@ -26,7 +26,7 @@ DB_CONFIG = {
     "database": "home_automation"
 }
 # MQTT Configuration
-MQTT_BROKER = "test.mosquitto.org"
+MQTT_BROKER = "broker.mqtt.cool"
 MQTT_TOPIC_TEMPERATURE = "home/temperature"
 MQTT_TOPIC_HUMIDITY = "home/humidity"
 MQTT_TOPIC_DEVICE_CONTROL = "home/device/"
@@ -444,6 +444,118 @@ def get_favorite_descriptions():
     except Exception as e:
         logging.error(f"Error fetching favorite descriptions: {e}")
         return jsonify({"error": "Failed to fetch favorite descriptions"}), 500
+
+
+# Get all rooms
+from flask import jsonify
+
+@app.route('/rooms', methods=['GET'])
+def get_rooms():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM rooms")
+    rooms = cursor.fetchall()
+
+    # Convert list of tuples into list of dictionaries
+    rooms_json = [{"id": room[0], "name": room[1]} for room in rooms]
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(rooms_json)  # Returns proper JSON format
+
+# Add a new room
+@app.route('/rooms', methods=['POST'])
+def add_room():
+    data = request.json
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO rooms (name) VALUES (%s)", (data['name'],))
+    conn.commit()
+    return jsonify({"message": "Room added"}), 201
+
+# Update a room
+@app.route('/rooms/<int:room_id>', methods=['PUT'])
+def update_room(room_id):
+    data = request.json
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE rooms SET name = %s WHERE id = %s", (data['name'], room_id))
+    conn.commit()
+    return jsonify({"message": "Room updated"})
+
+# Delete a room
+@app.route('/rooms/<int:room_id>', methods=['DELETE'])
+def delete_room(room_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM devices WHERE room_id = %s", (room_id,))
+    cursor.execute("DELETE FROM rooms WHERE id = %s", (room_id,))
+    conn.commit()
+    return jsonify({"message": "Room deleted"})
+
+# ------------------- DEVICE ROUTES -------------------
+
+# Get devices in a room
+@app.route('/rooms/<int:room_id>/devices', methods=['GET'])
+def get_devices(room_id):
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)  # Ensures rows are returned as dictionaries
+    cursor.execute("SELECT * FROM devices WHERE room_id = %s", (room_id,))
+    devices = cursor.fetchall()  # Returns list of dictionaries
+    return jsonify(devices)  # Now sends JSON objects
+
+# Add a device to a room
+@app.route('/rooms/<int:room_id>/devices', methods=['POST'])
+def add_device(room_id):
+    data = request.json  # Get JSON data from the frontend
+
+    # Extract device details from request
+    name = data.get("name")
+    device_type = data.get("type")
+
+
+    if not name or not device_type:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Insert into database
+    cursor.execute("""
+        INSERT INTO devices (name, type,room_id)
+        VALUES (%s, %s, %s)
+    """, (name, device_type, room_id))
+
+    conn.commit()
+    new_device_id = cursor.lastrowid  # Get the inserted device ID
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"id": new_device_id, "message": "Device added successfully"}), 201
+
+# Update a device
+@app.route('/devices/<int:device_id>', methods=['PUT'])
+def update_device(device_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    data = request.json
+    cursor.execute("UPDATE devices SET name = %s, status = %s WHERE id = %s",
+                   (data['name'], data['status'], device_id))
+    conn.commit()
+    return jsonify({"message": "Device updated"})
+
+# Delete a device
+@app.route('/devices/<int:device_id>', methods=['DELETE'])
+def delete_device(device_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM devices WHERE id = %s", (device_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({"message": "Device deleted"})
 
 # Handle OPTIONS request for preflight
 @app.before_request

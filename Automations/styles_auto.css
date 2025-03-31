@@ -7,12 +7,98 @@
     font-family: lexend;
 }
 
+:root {
+    /* Background Colors */
+    --background-color: #17217e;
+    --card-background: #2D40E8;
+    --darker-card-contrast-ke-liye: #2A38E0;
+    
+    /* SideBar Colours */
+    --sidebar-background: #131646;
+  
+    /* Text Colors */
+    --text-color: #ffffff;
+    --text-muted: #b3b3ff;
+    
+    /* Button Colors */
+    --primary-button-bg: #4d3df5;
+    --primary-button-text: #ffffff;
+    --secondary-button-bg: #2213c6;
+    --disabled-button-bg: #ff3b3b;
+    
+    /* Toggle Switch */
+    --toggle-on-bg: #4f8fff;
+    --toggle-off-bg: #ffffff26;
+    
+    /* Highlight Colors */
+    --accent-color: #62e1fc;
+    --automation-card-bg: #4032e5;
+    
+    /* Borders & Shadows */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+  
+  
+  
+:root.light-mode {
+    /* Background Colors */
+    --background-color: #f5f5f5; /* Lighter background */
+    --card-background: #ffffff;  /* Light card background */
+    --darker-card-contrast-ke-liye: #e6e6ff; /* Lighter contrast color */
+    
+    /* SideBar Colours */
+    --sidebar-background: #e1e1e1; /* Lighter sidebar */
+  
+    /* Text Colors */
+    --text-color: #333333; /* Dark text for better readability */
+    --text-muted: #fff; /* Muted text for secondary content */
+    
+    /* Button Colors */
+    --primary-button-bg: #3a61f7; /* Lighter primary button */
+    --primary-button-text: #ffffff; 
+    --secondary-button-bg: #2a45c4; /* Lighter secondary button */
+    --disabled-button-bg: #f5a5a5; /* Soft red for disabled state */
+    
+    /* Toggle Switch */
+    --toggle-on-bg: #4f8fff;
+    --toggle-off-bg: #e1e1e1; /* Soft background for off state */
+    
+    /* Highlight Colors */
+    --accent-color: #62e1fc; /* Accent remains the same */
+    --automation-card-bg: #c6a7ff; /* Lighter automation card background */
+    
+    /* Borders & Shadows */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.1); /* Softer shadow for light mode */
+}
+
+.theme-toggle{
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    border: 0.15rem solid var(--text-color);
+    color: var(--text-color);
+    border-radius: 50px;
+    background: none;
+    font-size: 0.9rem;
+    padding: 0.5em 0.5em;
+    font-weight: 700;
+    z-index: 1005;
+}   
+.theme-toggle:hover{
+    background-color: var(--primary-button-bg);
+    color: var(--text-muted);
+    border-color: var(--primary-button-bg);
+}
+
+
 /* Full-screen background fix */
 body {
     display: flex;
     height: 100vh;
-    background: #17217e;
-    color: white;
+    background: var(--background-color);
+    color: var(--text-color);
     flex-direction: column;
 }
 .section{
@@ -23,7 +109,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 20vw;
-    background: #131646;
+    background: var(--sidebar-background);
     padding: 20px;
     transition: transform 0.3s ease-in-out;
     position: fixed; /* Fix sidebar position */
@@ -40,7 +126,7 @@ body {
     background: none;
     border: none;
     font-size: 24px;
-    color: white;
+    color: var(--text-color);
     cursor: pointer;
     z-index: 1000; /* Ensures it's on top */
 }
@@ -58,7 +144,7 @@ body {
     left: 0;
     width: 250px;
     height: 100vh;
-    background: #131646;
+    background: var(--sidebar-background);
     padding: 3% 1% 0 1%;
     transition: transform 0.3s ease-in-out;
 }
@@ -67,7 +153,7 @@ body {
     background: none;
     border: none;
     font-size: 24px;
-    color: white;
+    color: var(--text-color);
     cursor: pointer;
 }
 
@@ -88,10 +174,10 @@ body {
 }
 
 .sidebar li:hover{
-    background: #191938;
+    background: var(--darker-card-contrast-ke-liye);
 }
 .sidebar li.active {
-    background: #2A38E0;
+    background: var(--card-background);
     border-radius: 5px;
 }
 .sidebar button {
@@ -135,9 +221,9 @@ body {
     margin-bottom: 20px;
 }
 #addRuleBtn {
-    background-color: #17217e; /* Primary color */
-    color: white;
-    border: 0.3rem solid white; /* Added white border */
+    background-color: var(--background-color); /* Primary color */
+    color: var(--text-color);
+    border: 0.3rem solid var(--text-color); /* Added white border */
     padding: 1.8rem 1.8rem;
     font-size: 2rem;
     margin: 4vh 0;
@@ -147,18 +233,20 @@ body {
 }
 
 #addRuleBtn:hover {
-    background-color: #fff; /* Darker shade on hover */
+    background-color: var(--text-color); /* Darker shade on hover */
     transform: scale(1.05);
-    color: #131646;
-    border-color: #ddd; /* Lighten border on hover */
+    color: var(--background-color);
+    border-color: var(--text-muted); /* Lighten border on hover */
+    box-shadow: 0px 10px 13px var(--toggle-off-bg);
 }
 #addRuleBtn:active{
-    transform: scale(0.95);
+    transform: scale(0.95) translateY(9px);
+    box-shadow: none;
 }
 
 
 .rules-container {
-    background-color: #2A38E0; /* Lighter background */
+    background-color: var(--card-background); /* Lighter background */
     padding: 15px;
     border-radius: 31px; /* Rounded corners */
     width: 100%;
@@ -171,7 +259,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.15); /* Slightly lighter background */
+    background: var(--toggle-off-bg); /* Slightly lighter background */
     padding: 12px 16px;
     border-radius: 21px;
     margin-bottom: 10px;
@@ -179,7 +267,7 @@ body {
 
 .rule-name {
     font-size: 16px;
-    color: white;
+    color: var(--text-color);
     font-weight: 500;
 }
 
@@ -190,8 +278,8 @@ body {
 
 .rule-buttons button {
     background-color: transparent;
-    border: 2px solid white;
-    color: white;
+    border: 2px solid var(--text-color);
+    color: var(--text-color);
     padding: 6px 12px;
     font-size: 14px;
     border-radius: 8px;
@@ -200,8 +288,8 @@ body {
 }
 
 .rule-buttons button:hover {
-    background-color: white;
-    color: #17217e;
+    background-color: var(--text-color);
+    color: var(--card-background);
 }
 
 /* Popup Overlay - Covers Full Screen */
@@ -212,8 +300,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
-    backdrop-filter: blur(5px);
+    background: var(--toggle-off-bg); /* Semi-transparent dark overlay */
+    backdrop-filter: blur(15px);
     justify-content: center;
     align-items: center;
     z-index: 1000; /* Ensures it stays on top */
@@ -221,7 +309,7 @@ body {
 
 /* Popup Box - Centered */
 .popup {
-    background: #2A38E0; /* Matching theme color */
+    background: var(--card-background); /* Matching theme color */
     padding: 20px;
     border-radius: 31px;
     width: 60%;
@@ -230,7 +318,7 @@ body {
     text-align: center;
     color: white;
     position: relative;
-    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+    box-shadow: 0px 4px 10px var(--toggle-off-bg);
     z-index: 1001; /* Ensures it is above everything */
 }
 
@@ -240,6 +328,9 @@ body {
     flex-direction: column;
     gap: 1rem;
     align-items: center;
+}
+.popup-content h2{
+    color: var(--text-color);
 }
 
 #acControl{
@@ -262,7 +353,7 @@ body {
     right: 2vw;
     background: transparent;
     border: none;
-    color: white;
+    color: var(--text-color);
     font-size: 3rem;
     cursor: pointer;
     transition: color 0.3s ease;
@@ -280,11 +371,11 @@ body {
 .popup select {
     width: 100%;
     padding: 10px;
-    border: 0.2rem solid white;  /* Explicit border */
+    border: 0.2rem solid var(--text-color);  /* Explicit border */
     border-radius: 16px;  /* Consistent rounded corners */
     background-color: transparent;  /* Match theme */
-    color: white;
-    font-size: 16px;
+    color: var(--text-color);
+    font-size: 1rem;
     appearance: none; /* Remove default browser styling */
     -webkit-appearance: none; /* Remove Safari default */
     -moz-appearance: none; /* Remove Firefox default */
@@ -311,24 +402,27 @@ body {
 
 /* Save Rule Button */
 #saveRule {
-    background-color: #2A38E0; /* Primary color */
-    color: white;
-    border: 2px solid white;
+    background-color: var(--card-background); /* Primary color */
+    color: var(--text-color);
+    border: 2px solid var(--text-color);
     padding: 12px;
-    font-size: 16px;
+    font-size: 1rem;
     border-radius: 50px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s;
     max-width: max-content;
 }
 #saveRule:hover {
-    background-color: #2633a5; /* Darker primary color */
+    background-color: var(--text-color); /* Darker primary color */
     border: #191938;
+    color: var(--card-background);
+    box-shadow: 0px 10px 10px var(--toggle-off-bg);
 }
 
 
 #saveRule:active {
-    background-color: #0f1456;
+    background-color: black;
+    transform: translateY(4px);
 }
 
 .fav-btn {
@@ -339,6 +433,6 @@ body {
 }
 
 .fav-btn.favorite {
-    color: #2633a5;
-    background-color: #FFF;
-} 
+    color: var(--card-background);
+    background-color: var(--text-color);
+}

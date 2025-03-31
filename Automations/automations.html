@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <button class="theme-toggle" id="theme-toggle">Switch Mode ⏾</button>
         <!-- Sidebar -->
     <div class="sidebar hidden">
         <h2>Home Automator</h2>
@@ -18,7 +19,7 @@
             <li onclick="selectMenu(this)">Room 1</li>
             <li onclick="selectMenu(this)">Room 2</li>
             <li onclick="selectMenu(this)">Automations</li>
-            <li onclick="selectMenu(this)">Settings</li>
+            <li onclick="selectMenu(this, '../settings/settings.html')">Settings</li>
         </ul>
         <button onclick="logout()">Logout</button>
     </div>
@@ -30,14 +31,7 @@
         <button id="addRuleBtn">Add New Rule</button>
         
         <div class="rules-container" id="rulesList">
-            <!-- <div class="rule-item">
-                <span class="rule-name">Living Room Temp Alert</span>
-                <div class="rule-buttons">
-                    <button>Edit</button>
-                    <button>Delete</button>
-                    <button>★</button>
-                </div>
-            </div> -->
+
         </div>
     </div>
 

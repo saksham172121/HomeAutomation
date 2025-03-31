@@ -417,3 +417,47 @@ function fetchFavoriteDescriptions() {
 
 // Call this function on page load
 document.addEventListener("DOMContentLoaded", fetchFavoriteDescriptions);
+
+
+
+
+
+
+// Get the button and attach event listener
+const themeToggleButton = document.getElementById('theme-toggle');
+
+// Check the current theme in localStorage or default to dark mode
+let currentTheme = localStorage.getItem('theme') || 'dark-mode';
+if (currentTheme === 'light-mode') {
+    document.documentElement.classList.add('light-mode');
+} else {
+    themeToggleButton.textContent = 'Switch Mode ⏾'; // Update button text for dark mode
+}
+
+// Function to update the button text based on the theme
+function updateButtonText() {
+    if (document.documentElement.classList.contains('light-mode')) {
+        themeToggleButton.textContent = 'Switch Mode ⏾'; // Button text for light mode
+    } else {
+        themeToggleButton.textContent = 'Switch Mode 𖤓'; // Button text for dark mode
+    }
+}
+
+// Immediately update button text based on current theme
+updateButtonText();
+
+// Toggle between dark and light mode when the button is clicked
+themeToggleButton.addEventListener('click', () => {
+    // Toggle the class on the root element
+    document.documentElement.classList.toggle('light-mode');
+    
+    // Update localStorage with the new theme
+    if (document.documentElement.classList.contains('light-mode')) {
+        localStorage.setItem('theme', 'light-mode');
+    } else {
+        localStorage.setItem('theme', 'dark-mode');
+    }
+    
+    // Immediately update the button text
+    updateButtonText();
+});

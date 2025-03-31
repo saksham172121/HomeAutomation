@@ -1,3 +1,6 @@
+
+
+
 /* Reset */
 * {
     margin: 0;
@@ -6,12 +9,99 @@
     font-family: lexend;
 }
 
+:root {
+    /* Background Colors */
+    --background-color: #17217e;
+    
+    --card-background: #2D40E8;
+    --darker-card-contrast-ke-liye: #2A38E0;
+
+    /* SideBar Colours */
+    --sidebar-background: #131646;
+    --minitile-accent: #5F6DEE;
+
+    /* Text Colors */
+    --text-color: #ffffff;
+    --text-muted: #b3b3ff;
+
+    /* Button Colors */
+    --primary-button-bg: #4d3df5;
+    --primary-button-text: #ffffff;
+    --secondary-button-bg: #2213c6;
+    --disabled-button-bg: #ff3b3b;
+
+    /* Toggle Switch */
+    --toggle-on-bg: #4f8fff;
+    --toggle-off-bg: #ffffff26;
+
+    /* Highlight Colors */
+    --accent-color: #62e1fc;
+    --automation-card-bg: #4032e5;
+
+    /* Borders & Shadows */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+
+
+    :root.light-mode {
+    /* Background Colors */
+    --background-color: #f5f5f5; /* Lighter background */
+    --card-background: #ffffff;  /* Light card background */
+    --darker-card-contrast-ke-liye: #e6e6ff; /* Lighter contrast color */
+    --minitile-accent: #e3e3e3;
+
+    /* SideBar Colours */
+    --sidebar-background: #e1e1e1; /* Lighter sidebar */
+
+    /* Text Colors */
+    --text-color: #333333; /* Dark text for better readability */
+    --text-muted: #fff; /* Muted text for secondary content */
+
+    /* Button Colors */
+    --primary-button-bg: #3a61f7; /* Lighter primary button */
+    --primary-button-text: #ffffff; 
+    --secondary-button-bg: #2a45c4; /* Lighter secondary button */
+    --disabled-button-bg: #f5a5a5; /* Soft red for disabled state */
+
+    /* Toggle Switch */
+    --toggle-on-bg: #4f8fff;
+    --toggle-off-bg: #e1e1e1; /* Soft background for off state */
+
+    /* Highlight Colors */
+    --accent-color: #62e1fc; /* Accent remains the same */
+    --automation-card-bg: #c6a7ff; /* Lighter automation card background */
+
+    /* Borders & Shadows */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.1); /* Softer shadow for light mode */
+}
+.theme-toggle{
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    border: 0.15rem solid var(--text-color);
+    color: var(--text-color);
+    border-radius: 50px;
+    background: none;
+    font-size: 0.9rem;
+    padding: 0.5em 0.5em;
+    font-weight: 700;
+}
+.theme-toggle:hover{
+    background-color: var(--primary-button-bg);
+    color: var(--text-muted);
+    border-color: var(--primary-button-bg);
+}
+
+
 /* Full-screen background fix */
 body {
     display: flex;
     height: 100vh;
-    background: #17217e;
-    color: white;
+    background: var(--background-color);
+    color: var(--text-color);
     flex-direction: column;
 }
 .section{
@@ -22,7 +112,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 20vw;
-    background: #131646;
+    background: var(--sidebar-background);
     padding: 20px;
     transition: transform 0.3s ease-in-out;
     position: fixed; /* Fix sidebar position */
@@ -39,7 +129,7 @@ body {
     background: none;
     border: none;
     font-size: 24px;
-    color: white;
+    color: var(--text-color);
     cursor: pointer;
     z-index: 1000; /* Ensures it's on top */
 }
@@ -57,7 +147,7 @@ body {
     left: 0;
     width: 250px;
     height: 100vh;
-    background: #131646;
+    background: var(--sidebar-background);
     padding: 3% 1% 0 1%;
     transition: transform 0.3s ease-in-out;
 }
@@ -66,7 +156,7 @@ body {
     background: none;
     border: none;
     font-size: 24px;
-    color: white;
+    color: var(--text-color);
     cursor: pointer;
 }
 
@@ -74,6 +164,7 @@ body {
 .sidebar h2 {
     font-size: 20px;
     margin: 15px 0;
+    color: var(--text-color);
 }
 
 .sidebar ul {
@@ -84,13 +175,14 @@ body {
     padding: 10px;
     cursor: pointer;
     transition: background 0.3s;
+    color: var(--text-color);
 }
 
 .sidebar li:hover{
-    background: #2a39e0bb;
+    background: var(--darker-card-contrast-ke-liye);
 }
 .sidebar li.active {
-    background: #2A38E0;
+    background: var(--card-background);
     border-radius: 5px;
 }
 .sidebar button {
@@ -141,7 +233,7 @@ heading{
     position: relative;
     display: flex;
     width: 420px;
-    background: #4D5BA6;
+    background: var(--toggle-off-bg);
     border-radius: 20px;
     padding: 5px;
     margin-top: 20px;
@@ -166,7 +258,7 @@ heading{
     position: absolute;
     width: 50%;
     height: 100%;
-    background: #2A38E0;
+    background: var(--card-background);
     border-radius: 20px;
     transition: transform 0.3s ease-in-out;
     left: 0;
@@ -180,7 +272,7 @@ heading{
     background: none;
     border: none;
     font-size: 24px;
-    color: white;
+    color: var(--text-color);
     cursor: pointer;
     z-index: 1000; /* Make sure it's always clickable */
     display: none; /* Hidden when sidebar is visible */
@@ -206,7 +298,7 @@ heading{
 
 
 .tile {
-    background: #2D40E8; /* Dark blue */
+    background: var(--card-background); /* Dark blue */
     /* padding: 20px; */
     text-align: center;
     color: white;
@@ -215,7 +307,7 @@ heading{
 
 .tile:hover  {
     /* box-shadow: inset 5px 5px 12px 0px rgba(0, 0, 0, 25%), 6px 9px 16px 0px rgba(0, 0, 0, 25%); */
-        box-shadow: 6px 9px 16px 0px rgba(0,0,0,0.5);
+        box-shadow: 6px 9px 16px 0px rgba(0, 0, 0, 0.56);
 }
 
 .tile:hover .mini-tile {
@@ -244,7 +336,7 @@ heading{
     padding: 0;
     font-size: 1.4rem;
     font-weight: bold;
-    color: white;
+    color: var(--text-color);
     white-space: normal; /* Allows text wrapping */
     word-wrap: break-word; /* Ensures long words break */
     text-align: left;
@@ -256,7 +348,7 @@ heading{
 /* mini tile middle and sides start */
 .mini-tile {
     display: flex;
-    background: #5F6DEE ;/* Default blue */
+    background: var(--minitile-accent) ;/* Default blue */
     position: absolute;
     width: 40%;
     height: 100%;
@@ -273,7 +365,7 @@ heading{
 .mini-tile p{
     font-size: 1.6rem;
     font-weight: bold;
-    color: white;
+    color: var(--text-color);
 }
 /* mini tile middle and sides end */
 
@@ -297,11 +389,13 @@ heading{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--minitile-accent);
     padding: 3vh;
     border-radius: 42px;
     margin-bottom: 10px;
-    color: white;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 /* Toggle Switch Styling */
@@ -358,7 +452,7 @@ input:checked + .slider:before {
     align-items: center;
     flex-direction: column;
     text-align: center;
-    color: white;
+    color: var(--text-color);
     position: relative;
     padding: 10%;
 }
@@ -375,10 +469,8 @@ input:checked + .slider:before {
     font-weight: bold;
 }
 .power-button {
-    width: 60px;
-    height: 60px;
     border-radius: 50%;
-    background-color: #5F6DEE;
+    background-color: var(--minitile-accent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -386,8 +478,14 @@ input:checked + .slider:before {
     transition: background 0.3s ease-in-out;
     border: none;
     font-size: 2.4rem;
-    color: #fff;
+    color: var(--text-color);
+    display: flex;
+    height: 5rem;
+    width: 5rem;
+    min-width: 3.5rem;
+    min-height: 3.5rem;
 }
+
 
 .flash-green {
     background-color: #00C853 !important; /* Temporary green flash */
@@ -399,7 +497,7 @@ input:checked + .slider:before {
 .slider-container {
     width: 90%;
     height: 10%;
-    background-color: #4A4AFF;
+    background-color: var(--minitile-accent);
     border-radius: 25px;
     position: relative;
     display: flex;
@@ -429,7 +527,7 @@ input:checked + .slider:before {
     align-items: center;
     gap: 10px;
     padding: 20px;
-    background-color: #4A4AFF;
+    background-color: var(--minitile-accent);
     border-radius: 30px;
     min-width: 90%;
 }
@@ -437,7 +535,7 @@ input:checked + .slider:before {
 .fan-speed-label {
     font-size: 18px;
     font-weight: bold;
-    color: white;
+    color: var(--text-color);
 }
 
 .fan-speed-slider {
@@ -452,7 +550,7 @@ input:checked + .slider:before {
 .fan-speed-slider::-webkit-slider-runnable-track {
     width: 100%;
     height: 8px;
-    background: #5559d0;
+    background: var(--card-background);
     border-radius: 4px;
     transition: transform 0.3s ease-in-out;
 }
@@ -463,7 +561,7 @@ input:checked + .slider:before {
     appearance: none;
     width: 24px;
     height: 24px;
-    background: #76F8FF;  
+    background: var(--text-color);  
     border-radius: 50%;
     cursor: pointer;
     position: relative;
@@ -479,14 +577,21 @@ input:checked + .slider:before {
 }
 
 .temperature_button{
-    background-color: #4A50E0;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
+    border-radius: 20%;
+    background-color: var(--minitile-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 1.5rem;
-    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    display: flex;
+    height: 5rem;
+    width: 5rem;
+    min-width: 3.5rem;
+    min-height: 3.5rem;
 }
 
 /* RIGHT BIG TILEE */
@@ -494,6 +599,7 @@ input:checked + .slider:before {
 #quick_automations_tile{
     display: flex;
     flex-direction: column;
+    color: var(--text-color);
 }
 
 #quick_automations_tile > p{
@@ -517,7 +623,7 @@ input:checked + .slider:before {
 }
 
 .square-tile{
-    background-color: #5F6DEE;
+    background-color: var(--minitile-accent);
     grid-row: span 1;
     grid-column: span 1;
     display: flex;
@@ -528,16 +634,18 @@ input:checked + .slider:before {
     align-items: center;
     min-height: 20rem;
     overflow: hidden;
-
+}
+.square-tile:hover{
+    box-shadow: none;
 }
 
 .square-tile_button {
     appearance: none;
     background-color: transparent;
-    border: 0.2rem solid #fff;
+    border: 0.2rem solid var(--text-color);
     border-radius: 20px;
     box-sizing: border-box;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     display: inline-block;
     font-family: Roobert,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
@@ -564,11 +672,12 @@ input:checked + .slider:before {
 }
   
 .square-tile_button:hover {
-    color: #fff;
-    background-color: #4A50E0;
-    border: 0.2rem solid #4A50E0;
+    color: var(--text-color);
+    background-color: var(--text-color);
+    border: 0.2rem solid var(--text-color);
     box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
     transform: translateY(-2px);
+    color: var(--minitile-accent);
 }
 
 .square-tile_button:active {
@@ -577,6 +686,7 @@ input:checked + .slider:before {
 }
 
 .square-tile p{
+    color: var(--text-color);
     font-size: 1.8rem;
     font-weight: bold;
     margin: 0;

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Automation Dashboard</title>
+    <link rel="stylesheet" href="settings_styles.css">
+    <!-- <link rel="stylesheet" href="mediaqueries.css"> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle">Switch Mode ⏾</button>
+<!-- Sidebar -->
+<div class="sidebar hidden">
+    <h2>Home Automator</h2>
+    <ul>
+        <li onclick="selectMenu(this, '../Main Page/main.html')">Devices</li>
+        <li>Room 1</li>
+        <li>Room 2</li>
+        <li onclick="selectMenu(this, '../Automations/automations.html')">Automations</li>
+        <li onclick="selectMenu(this)">Settings</li>
+    </ul>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<!-- Single Menu Button (Works in Both States) -->
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+
+<div class="main">
+    <h1 class="heading">Settings</h1>
+    <div class="main-container">
+        <button id="prevBtn" onclick="showPrev()">&#8592;</button>
+        <div class="container settings">
+            <div class="topcontainer">
+                <div class="room-selector">
+                    <div class="room-slider" id="roomSlider"></div>
+                    <div id="roomButtons">
+                    </div>
+                    
+                </div>
+                <button id="addRoomBtn">+</button>
+            </div>
+            <div class="button-container-devices" id="button-container-devices">
+                    
+            </div>
+                
+            <div class="devices-container" id="devicesContainer">
+                <!-- Devices for selected room will be displayed here -->
+
+            </div>
+     
+            <!-- Device Modal -->
+            <div id="deviceModal" class="modal-overlay">
+                <div class="modal-box">
+                    <h2>Add New Device</h2>
+                    <span class="close-btn" onclick="closeDeviceModal()">&times;</span>
+                    
+                    <label>Name: <input type="text" id="deviceName"></label>
+                    
+                    <label>Type: 
+                        <select id="deviceType" onchange="toggleDeviceFields()">
+                            <option value="light">Light</option>
+                            <option value="fan">Fan</option>
+                            <option value="ac">AC</option>
+                        </select>
+                    </label>
+                    
+                    <label>Status: 
+                        <select id="deviceStatus">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                            <option value="speed">Speed (for Fan)</option>
+                            <option value="ac">AC Mode (for AC)</option>
+                        </select>
+                    </label>
+                    
+                    <div id="extraFields"></div> <!-- Extra fields will appear here dynamically -->
+                    
+                    <button id="confirmAddDevice">Add Device</button>
+                    <button onclick="closeDeviceModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div class="container user active">
+            
+
+                <!-- Left: Profile Picture -->
+                <div class="profile-picture">
+                    <div class="user-icon-container">
+                        <svg class="user-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="32" cy="20" r="12" class="user-head"/>
+                          <path d="M16 52c0-8 7.2-14 16-14s16 6 16 14" class="user-body"/>
+                        </svg>
+                      </div>
+                    <p>Welcome, John</p>
+                </div>
+
+                <!-- Right: User Info -->
+                <div class="user-info">
+                    <h2>User Information</h2>
+                    <div class="info-field">
+                        <label>Username:</label>
+                        <span id="display-username">JohnDoe</span>
+                    </div>
+                    <div class="info-field">
+                        <label>Email:</label>
+                        <span id="display-email">johndoe@example.com</span>
+                    </div>
+            
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button id="change-password-btn">Change Password</button>
+                        <button id="delete-account-btn" class="danger">Delete Account</button>
+                    </div>
+                </div>
+            
+        </div>
+        <button id="nextBtn" onclick="showNext()">&#8594;</button>
+    </div>
+</div>
+
+    
+
+<script src="settings_script.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  -->
+
+</body>
+</html>

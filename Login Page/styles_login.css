@@ -1,11 +1,92 @@
+:root {
+  /* Background Colors */
+  --background-color: #17217e;
+  --card-background: #2D40E8;
+  --darker-card-contrast-ke-liye: #2A38E0;
+  
+  /* SideBar Colours */
+  --sidebar-background: #131646;
 
+  /* Text Colors */
+  --text-color: #ffffff;
+  --text-muted: #b3b3ff;
+  
+  /* Button Colors */
+  --primary-button-bg: #4d3df5;
+  --primary-button-text: #ffffff;
+  --secondary-button-bg: #2213c6;
+  --disabled-button-bg: #ff3b3b;
+  
+  /* Toggle Switch */
+  --toggle-on-bg: #4f8fff;
+  --toggle-off-bg: #ffffff26;
+  
+  /* Highlight Colors */
+  --accent-color: #62e1fc;
+  --automation-card-bg: #4032e5;
+  
+  /* Borders & Shadows */
+  --border-radius: 12px;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+
+
+:root.light-mode {
+  /* Background Colors */
+  --background-color: #f5f5f5; /* Lighter background */
+  --card-background: #ffffff;  /* Light card background */
+  --darker-card-contrast-ke-liye: #e6e6ff; /* Lighter contrast color */
+  
+  /* SideBar Colours */
+  --sidebar-background: #e1e1e1; /* Lighter sidebar */
+
+  /* Text Colors */
+  --text-color: #333333; /* Dark text for better readability */
+  --text-muted: #fff; /* Muted text for secondary content */
+  
+  /* Button Colors */
+  --primary-button-bg: #3a61f7; /* Lighter primary button */
+  --primary-button-text: #ffffff; 
+  --secondary-button-bg: #2a45c4; /* Lighter secondary button */
+  --disabled-button-bg: #f5a5a5; /* Soft red for disabled state */
+  
+  /* Toggle Switch */
+  --toggle-on-bg: #4f8fff;
+  --toggle-off-bg: #e1e1e1; /* Soft background for off state */
+  
+  /* Highlight Colors */
+  --accent-color: #62e1fc; /* Accent remains the same */
+  --automation-card-bg: #c6a7ff; /* Lighter automation card background */
+  
+  /* Borders & Shadows */
+  --border-radius: 12px;
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Softer shadow for light mode */
+}
+.theme-toggle{
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  border: 0.15rem solid var(--text-color);
+  color: var(--text-color);
+  border-radius: 50px;
+  background: none;
+  font-size: 0.9rem;
+  padding: 0.5em 0.5em;
+  font-weight: 700;
+}
+.theme-toggle:hover{
+  background-color: var(--primary-button-bg);
+  color: var(--text-muted);
+  border-color: var(--primary-button-bg);
+  }
 .login-container {
-  background-color: rgba(23, 33, 126, 1);
+  background-color: var(--background-color);
   display: flex;
   flex-direction: column;
   overflow: visible;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--text-color);
   justify-content: center;
   padding: 125px 80px;
   font: 700 24px Montserrat, sans-serif;
@@ -21,7 +102,7 @@
 html, body {
   width: 100%;
   height: 100%;
-  background-color: rgba(23, 33, 126, 1); /* Your existing background */
+  background-color: var(--background-color); /* Your existing background */
   overflow: hidden;
 }
 
@@ -39,15 +120,15 @@ html, body {
 }
 .input-field {
   border-radius: 50px;
-  background-color: rgba(162, 184, 255, 0.44);
+  background-color: var(--toggle-off-bg);
   width: 100%;
   padding: 20px 38px;
   border: none;
-  color: #f0f0f0;
+  color: var(--text-color);
 }
 .input-field::placeholder {
-  color: rgba(255, 255, 255, 0.7); /* Adjust color */
-  font-size: 16px; /* Adjust size */
+  color: var(--text-color); /* Adjust color */
+  font-size: 1rem; /* Adjust size */
   font-weight: 600; /* Adjust weight */
   letter-spacing: 0.5px; /* Optional: adjust spacing */
   text-transform: capitalize; /* Optional: Change text style */
@@ -76,7 +157,7 @@ html, body {
 }
 .login-button {
   border-radius: 40px;
-  background-color: rgba(21, 5, 120, 1);
+  background-color: var(--secondary-button-bg);
   margin-top: 51px;
   width: 220px;
   max-width: 100%;
@@ -123,7 +204,7 @@ html, body {
   transform: translate(0%, 0%);
   width: 100%;
   height: 100%;
-  background: rgba(21, 5, 120, 1);
+  background: rgba(0, 0, 0, 0.548);
   border-radius: 10px;
 }
 
@@ -158,7 +239,7 @@ html, body {
 
 .register-link {
   margin: 3vh 0;
-  color: #f0f0f0;
+  color: var(--text-color);
 }
 .visually-hidden {
   position: absolute;
@@ -173,7 +254,7 @@ html, body {
   }
 
 body {
-  background-color: rgba(23, 33, 126, 1);
+  background-color: var(--background-color);
   position: relative;
   overflow: hidden;
 }
@@ -186,7 +267,7 @@ REgister paGE
 }
 .form-actions a{
   margin: 2vh 0;
-  color: #FFF;
+  color: var(--text-color);
 }
 .blob {
   position: absolute;

@@ -1,0 +1,645 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: lexend;
+}
+
+:root {
+    /* Background Colors */
+    --background-color: #17217e;
+    --card-background: #2D40E8;
+    --darker-card-contrast-ke-liye: #2A38E0;
+    
+    /* SideBar Colours */
+    --sidebar-background: #131646;
+  
+    /* Text Colors */
+    --text-color: #ffffff;
+    --text-muted: #b3b3ff;
+    
+    /* Button Colors */
+    --primary-button-bg: #4d3df5;
+    --primary-button-text: #ffffff;
+    --secondary-button-bg: #2213c6;
+    --disabled-button-bg: #ff3b3b;
+    
+    /* Toggle Switch */
+    --toggle-on-bg: #4f8fff;
+    --toggle-off-bg: #ffffff26;
+    
+    /* Highlight Colors */
+    --accent-color: #62e1fc;
+    --automation-card-bg: #4032e5;
+    
+    /* Borders & Shadows */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  
+  
+  :root.light-mode {
+    /* Background Colors */
+    --background-color: #f5f5f5; /* Lighter background */
+    --card-background: #ffffff;  /* Light card background */
+    --darker-card-contrast-ke-liye: #e6e6ff; /* Lighter contrast color */
+    
+    /* SideBar Colours */
+    --sidebar-background: #e1e1e1; /* Lighter sidebar */
+  
+    /* Text Colors */
+    --text-color: #333333; /* Dark text for better readability */
+    --text-muted: #fff; /* Muted text for secondary content */
+    
+    /* Button Colors */
+    --primary-button-bg: #3a61f7; /* Lighter primary button */
+    --primary-button-text: #ffffff; 
+    --secondary-button-bg: #2a45c4; /* Lighter secondary button */
+    --disabled-button-bg: #f5a5a5; /* Soft red for disabled state */
+    
+    /* Toggle Switch */
+    --toggle-on-bg: #4f8fff;
+    --toggle-off-bg: #e1e1e1; /* Soft background for off state */
+    
+    /* Highlight Colors */
+    --accent-color: #62e1fc; /* Accent remains the same */
+    --automation-card-bg: #c6a7ff; /* Lighter automation card background */
+    
+    /* Borders & Shadows */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.1); /* Softer shadow for light mode */
+  }
+  .theme-toggle{
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    border: 0.15rem solid var(--text-color);
+    color: var(--text-color);
+    border-radius: 50px;
+    background: none;
+    font-size: 0.9rem;
+    padding: 0.5em 0.5em;
+    font-weight: 700;
+  }
+  .theme-toggle:hover{
+    background-color: var(--primary-button-bg);
+    color: var(--text-muted);
+    border-color: var(--primary-button-bg);
+    }
+  .login-container {
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    align-items: center;
+    color: var(--text-color);
+    justify-content: center;
+    padding: 125px 80px;
+    font: 700 24px Montserrat, sans-serif;
+    height: 100vh;
+  
+  }
+
+
+
+/* Full-screen background fix */
+html, body {
+    display: flex;
+    height: 100vh;
+    background: var(--background-color);
+    color: var(--text-color);
+    flex-direction: column;
+}
+.section{
+    height: 100vh;
+    width: 100vw;
+    display: inherit;
+}
+/* Sidebar */
+.sidebar {
+    width: 20vw;
+    background: var(--sidebar-background);
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+    position: fixed; /* Fix sidebar position */
+    left: 0;
+    top: 0;
+    height: 100vh; /* Make it full-height */
+    z-index: 1000; /* Ensure it's above the main content */
+    
+}
+.menu-btn {
+    position: fixed; /* Keeps it fixed */
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+    z-index: 1000; /* Ensures it's on top */
+}
+
+/* Sidebar stays hidden initially */
+.sidebar.hidden {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Sidebar when visible */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: var(--sidebar-background);
+    padding: 3% 1% 0 1%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+/* Sidebar Menu */
+.sidebar h2 {
+    font-size: 20px;
+    margin: 15px 0;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar li {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.sidebar li:hover{
+    background: var(--darker-card-contrast-ke-liye);
+}
+.sidebar li.active {
+    background: var(--card-background);
+    border-radius: 5px;
+}
+.sidebar button {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 10px rgba(255, 65, 108, 0.3);
+    position: absolute;
+    bottom: 10vh;
+    left: 30%;
+}
+
+.sidebar button:hover {
+    background: linear-gradient(135deg, #ff2e63, #ff6f61);
+    transform: scale(1.05);
+}
+
+.sidebar button:active {
+    transform: scale(0.95);
+}
+
+/* Sidebar Menu End */
+/* Main Content */
+
+.main{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100vh;
+    padding: 2rem;
+    transition: all 0.3s ease; 
+}
+.main-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    transition: all 0.3s ease; 
+}
+.main-container > button{
+    width: 50px; /* Square shape */
+    height: 50px;
+    border: none;
+    background-color: var(--primary-button-bg);
+    color: var(--text-color);
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 50%;
+    margin: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-in-out;
+}
+.main-container > button:hover{
+    background-color: var(--secondary-button-bg) !important;
+}
+
+.heading{
+    font-size: 48px;
+    font-weight: bold;
+    /* color: #2A38E0; */
+    margin-bottom: 2rem;
+}
+
+.container{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 32px;
+    background-color: var(--card-background);
+    min-height: 80vh;
+    min-width: 86vw;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+}
+.active{
+    display: flex;
+}
+
+/* User settings Section */
+
+
+.container h2{
+    /* font-size: 24px; */
+    font-weight: bold;
+    color: var(--text-color);
+    margin: 1.5rem 0;
+}
+
+
+/* .user-settings-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3b32c3;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 700px;
+    margin: auto;
+} */
+.user{
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-background);
+    padding: 20px;
+    /* border-radius: 12px; */
+    max-width: 700px;
+    margin: auto;
+    flex-direction: row;
+    position: relative;
+}
+
+.profile-picture{
+    height: 100%;
+    width: 50%;
+    background-color: var(--darker-card-contrast-ke-liye);
+    top: 0;
+    left: 0;
+    position: absolute;
+    border-radius: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+/* .profile-picture svg {
+    margin: 11vh 0;
+    width: 50%;
+    height: 50%;
+    border-radius: 50%;
+    object-fit: revert;
+    border: 2rem solid var(--card-background);
+    fill: var(--card-background);
+    width: 19vw;
+    height: 19vw;
+    min-width: 40px; 
+    min-height: 40px;
+} */
+
+.user-icon-container {
+    margin: 11vh 0;
+    width: 20vw; /* Adjust as needed */
+    height: 20vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Makes it circular */
+    border: 2rem solid var(--card-background); /* Border color */
+    overflow: hidden; /* Ensures nothing overflows */
+    background: var(--darker-card-contrast-ke-liye); /* Background color */
+}
+
+.user-icon {
+    width: 100%; /* Scales inside the container */
+    height: auto;
+    fill: none;
+    stroke: var(--card-background);
+    stroke-width: 5;
+}
+
+.profile-picture p{
+    font-size: 2rem;
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+.user-info {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    width: 50%;
+    position: absolute;
+    right: 0;
+    padding: 0 10vw;
+}
+
+.info-field {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    background: var(--toggle-off-bg);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.info-field label {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.info-field span {
+    color: var(--text-color);
+}
+
+.action-buttons {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#change-password-btn {
+    background: #ffcc00;
+    color: black;
+}
+
+.danger {
+    background: #ff4d4d;
+    color: white;
+}
+
+
+
+
+/* Device / room */
+
+/* Room Selector */
+
+.topcontainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.room-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: max-content;
+    max-height: 7vh;
+    background: var(--toggle-off-bg);
+    border-radius: 20px;
+    padding: 2% 0;
+    margin: 20px auto;
+    overflow: hidden;
+}
+
+#roomButtons{
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
+/* Room Buttons */
+.room-btn {
+    flex: 1;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+    position: relative;
+    z-index: 2;
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+
+/* Sliding Effect */
+.room-slider {
+    position: absolute;
+    /* width: max-content; */
+    height: 100%;
+    background: var(--primary-button-bg);
+    border-radius: 20px;
+    transition: transform 0.3s ease-in-out;
+    left: 0;
+    top: 0;
+}     
+
+/* Add Room Button */
+#addRoomBtn {
+    background-color: var(--primary-button-bg);
+    border: none;
+    color: white;
+    font-size: 1.7rem;
+    padding: 0.8em; /* Adjusted for responsiveness */
+    border-radius: 100%;
+    cursor: pointer;
+    margin-left: 1em;
+    text-align: center;
+
+    /* Ensure it's always a perfect circle */
+    width: 3.5rem;  
+    height: 3.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Responsive */
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    max-width: 4rem;
+    max-height: 4rem;
+}
+
+
+
+
+
+
+
+
+/* Modal Background Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Modal Box */
+.modal-box {
+    background: var(--card-background);
+    padding: 3rem;
+    border-radius: 31px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 40vw;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.modal-box h2{
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-align: center;
+}
+.modal-box label{
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text-color);
+    text-align: center;
+}
+.modal-box input{
+    width: 80%;
+    height: 3rem;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--toggle-off-bg);
+    color: var(--text-color);
+}
+.modal-box input:focus{
+    outline: none;
+    box-shadow: 0px 0px 10px rgba(0, 0,
+    0, 0.2);
+    border: 0.2rem solid var(--text-color);
+}
+.modal-box select{
+    width: 100%;
+    padding: 10px;
+    border: 0.2rem solid var(--text-color);  /* Explicit border */
+    border-radius: 16px;  /* Consistent rounded corners */
+    background-color: transparent;  /* Match theme */
+    color: var(--text-color);
+    font-size: 1rem;
+    appearance: none; /* Remove default browser styling */
+    -webkit-appearance: none; /* Remove Safari default */
+    -moz-appearance: none; /* Remove Firefox default */
+    outline: none;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+
+
+.button-container-devices{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.button-container-devices > button , .modal-box > button{
+    margin: 0.5em;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+.delete-room-btn:hover{
+    background-color: var(--disabled-button-bg);
+}
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+
+
+
+
+
+/* device container styles */
+
+.devices-container{
+    width: 90%;
+    margin: 2rem auto;
+    overflow-y: auto;
+}
+.device-card{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    background: var(--toggle-off-bg); /* Slightly lighter background */
+    padding: 0.5rem 1.4rem;
+    border-radius: 21px;
+    margin: 1rem;
+}
+
+.delete-btn-device{
+    background-color: var(--delete-btn);
+    color: var(--text-color);
+    padding: 0.4rem 0.7rem;
+    border: 0.2rem solid var(--text-color);
+    border-radius: 21px;
+    cursor: pointer;
+    font-size: 1rem;
+    position: relative;
+    right: 0.5rem;
+    margin-left: auto;
+    transition: 0.2s all;
+}
+
+.delete-btn-device:hover{
+    background-color: var(--text-color);
+    color: var(--toggle-on-bg);
+}
