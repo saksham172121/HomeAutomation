@@ -19,7 +19,6 @@
     --text-color: #ffffff;
     --text-muted: #b3b3ff;
     
-    /* Button Colors */
     --primary-button-bg: #4d3df5;
     --primary-button-text: #ffffff;
     --secondary-button-bg: #2213c6;
@@ -45,7 +44,8 @@
     --background-color: #f5f5f5; /* Lighter background */
     --card-background: #ffffff;  /* Light card background */
     --darker-card-contrast-ke-liye: #e6e6ff; /* Lighter contrast color */
-    
+    --minitile-accent: #e3e3e3;
+
     /* SideBar Colours */
     --sidebar-background: #e1e1e1; /* Lighter sidebar */
   
@@ -100,7 +100,7 @@
     font: 700 24px Montserrat, sans-serif;
     height: 100vh;
   
-  }
+}
 
 
 
@@ -216,6 +216,10 @@ html, body {
     transform: scale(0.95);
 }
 
+#sidebarRoomList li{
+    padding-left: 12% ;
+}
+
 /* Sidebar Menu End */
 /* Main Content */
 
@@ -257,6 +261,7 @@ html, body {
 .main-container > button:hover{
     background-color: var(--secondary-button-bg) !important;
 }
+.mobile_navButton{display: none;}
 
 .heading{
     font-size: 48px;
@@ -278,6 +283,7 @@ html, body {
 }
 .active{
     display: flex;
+    color: var(--background-color) !important;
 }
 
 /* User settings Section */
@@ -469,7 +475,7 @@ button {
     position: absolute;
     /* width: max-content; */
     height: 100%;
-    background: var(--primary-button-bg);
+    background: var(--text-color);
     border-radius: 20px;
     transition: transform 0.3s ease-in-out;
     left: 0;
@@ -620,6 +626,7 @@ button {
     justify-content: start;
     align-items: center;
     background: var(--toggle-off-bg); /* Slightly lighter background */
+    color: var(--text-color);
     padding: 0.5rem 1.4rem;
     border-radius: 21px;
     margin: 1rem;

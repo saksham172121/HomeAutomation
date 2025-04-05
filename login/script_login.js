@@ -48,7 +48,7 @@ function showForm(formId) {
             if (response.ok) {
                 alert("Login successful!");
                 localStorage.setItem("authToken", data.token); // Store token
-                window.location.href = "../Main Page/main.html"; // Redirect (update as needed)
+                window.location.href = "../main/main.html"; // Redirect (update as needed)
             } else {
                 alert(data.error || "Invalid credentials.");
             }

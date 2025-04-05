@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automation Rules</title>
     <link rel="stylesheet" href="styles_auto.css">
+    <link rel="stylesheet" href="media_queries.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
@@ -12,17 +13,18 @@
 <body>
     <button class="theme-toggle" id="theme-toggle">Switch Mode ⏾</button>
         <!-- Sidebar -->
-    <div class="sidebar hidden">
-        <h2>Home Automator</h2>
-        <ul>
-            <li onclick="selectMenu(this, '../Main Page/main.html')">Devices</li>
-            <li onclick="selectMenu(this)">Room 1</li>
-            <li onclick="selectMenu(this)">Room 2</li>
-            <li onclick="selectMenu(this)">Automations</li>
-            <li onclick="selectMenu(this, '../settings/settings.html')">Settings</li>
-        </ul>
-        <button onclick="logout()">Logout</button>
-    </div>
+        <div class="sidebar hidden">
+            <h2>Home Automator</h2>
+            <ul>
+                <li onclick="selectMenu(this, '../main/main.html')">Devices</li>
+                <ul id="sidebarRoomList">
+                    <!-- Room buttons will be injected here -->
+                </ul>
+                <li onclick="selectMenu(this, '../automations/automations.html')">Automations</li>
+                <li onclick="selectMenu(this, '../settings/settings.html')">Settings</li>
+            </ul>
+            <button onclick="logout()">Logout</button>
+        </div>
 
     <!-- Single Menu Button (Works in Both States) -->
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
@@ -42,10 +44,11 @@
                 <h2>Create Automation Rule</h2>
                 
                 <label for="sensor">IF</label>
-                <select id="sensor">
+                <select id="sensor" onchange="toggleTimeFields()">
                     <option value="" disabled selected>Select a trigger</option>
                     <option value="temperature">Temperature</option>
                     <option value="humidity">Humidity</option>
+                    <option value="time">Time Of Day</option>
                 </select>
                 
                 <label for="condition">IS</label>
@@ -53,17 +56,19 @@
                     <option value="" disabled selected>Select a condition</option>
                     <option value="greater">More than</option>
                     <option value="less">Less than</option>
-                    <option value="equal">Equal to</option>
+                    <option value="equal">Exactly</option>
                 </select>
                 
                 <input type="number" id="value" placeholder="Enter value">
+
+                <div id="time_fields" style="display: none;">
+                    <label for="condition_time">Select Time:</label>
+                    <input type="time" id="condition_time" name="condition_time">
+                
+                </div>
     
                 <label for="device">THEN</label>
                 <select id="device">
-                    <option value="" disabled selected>Select a device</option>
-                    <option value="light">Light</option>
-                    <option value="fan">Fan</option>
-                    <option value="ac">AC</option>
                 </select>
     
                 <!-- ON/OFF Control -->

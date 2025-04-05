@@ -210,6 +210,10 @@ body {
     transform: scale(0.95);
 }
 
+#sidebarRoomList li{
+    padding-left: 12% ;
+}
+
 /* Main Content */
 .main-content {
     flex: 1;
@@ -223,13 +227,12 @@ body {
 .main-content.shifted {
     margin-left: 0px;
 }
-heading{
-
+.heading{
     margin-top: 3.5vh;
 }
 
 /* Room Selector */
-.room-selector {
+/* .room-selector {
     position: relative;
     display: flex;
     width: 420px;
@@ -237,10 +240,22 @@ heading{
     border-radius: 20px;
     padding: 5px;
     margin-top: 20px;
+} */
+.room-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: max-content;
+    max-height: 7vh;
+    background: var(--toggle-off-bg);
+    border-radius: 20px;
+    padding: 2% 0;
+    margin: 20px auto;
+    overflow: hidden;
 }
 
 /* Room buttons */
-.room-btn {
+/* .room-btn {
     flex: 1;
     padding: 10px;
     border: none;
@@ -251,10 +266,10 @@ heading{
     color: black;
     position: relative;
     z-index: 2;
-}
+} */
 
 /* Sliding Effect */
-.room-slider {
+/* .room-slider {
     position: absolute;
     width: 50%;
     height: 100%;
@@ -263,7 +278,50 @@ heading{
     transition: transform 0.3s ease-in-out;
     left: 0;
     top: 0;
+} */
+
+
+.active{
+    display: flex;
+    color: var(--background-color) !important;
 }
+
+#roomButtons{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Room Buttons */
+.room-btn {
+    flex: 1;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+    position: relative;
+    z-index: 2;
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+
+/* Sliding Effect */
+.room-slider {
+    position: absolute;
+    /* width: max-content; */
+    height: 100%;
+    background: var(--text-color);
+    border-radius: 20px;
+    transition: transform 0.3s ease-in-out;
+    left: 0;
+    top: 0;
+} 
+
+
+
 /* Hamburger Menu Button */
 .hamburger {
     position: absolute;

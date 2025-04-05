@@ -1,0 +1,83 @@
+@media (max-width: 768px) {
+    .sidebar{
+        padding: 8% 0% 0% 4%;
+    }
+    .main-container{
+        flex-direction: column;
+    }
+    .mobile_navButton{
+        display: block !important;
+        gap: 15%;
+    }
+    .mobile_navButton button{
+        background-color: var(--primary-button-bg);
+        color: var(--text-color);
+        margin: 5% 0;
+    }
+    .nav-btn{
+        display: none !important;
+        
+    }
+    .container{
+        min-height: 70vh;
+    }
+    .user-info{
+        padding: 3%;
+    }
+}
+
+@media (max-width: 425px) {
+    .sidebar{
+        padding: 13% 0% 0% 8%;
+    }
+    .theme-toggle{
+        top: 3%;
+        right: 2%;
+        font-size: 0.7rem;
+    }
+    .heading{
+        margin-top: 2rem;
+    }
+    .main{
+        padding: 0 2%;
+    }
+    .main-container{
+        padding: 0 2%;
+    }
+    .container{
+        width: 80%;
+        margin: 5% 0;
+        position: relative;
+    }
+    .topcontainer{
+        width: 90%;
+    }
+    .room-selector{
+        margin: auto;
+        padding: 0%;
+        width: 50%;
+    }
+
+    /* yet to fix slider */
+
+    .user{
+        flex-direction: column;
+    }
+    .profile-picture{
+        height: 50%;
+        width: 100%;
+        position: relative;
+    }
+    .user-icon-container{
+        margin: 4vh 0;
+        width: 50%;
+        height: 50%;
+    }
+    .user-info{
+        position: relative;
+        width: 90%;
+    }
+    .action-buttons button{
+        font-size: 0.8rem;
+    }
+}

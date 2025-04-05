@@ -1,9 +1,11 @@
+const API_BASE_URL = "http://127.0.0.1:5000";
+
 function toggleSidebar() {
     document.querySelector(".sidebar").classList.toggle("hidden");
 }
 function logout() {
     localStorage.removeItem("authToken");
-    window.location.href = "../Login Page/login.html";
+    window.location.href = "../login/login.html";
 }
 
 function selectMenu(element, page) {
@@ -32,79 +34,145 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchRules();
 });
 
+// document.getElementById("device").addEventListener("change", function () {
+//     let deviceType = this.value;
+//     document.getElementById("onOffControl").style.display = "none";
+//     document.getElementById("speedControl").style.display = "none";
+//     document.getElementById("acControl").style.display = "none";
+
+//     if (deviceType === "light") {
+//         document.getElementById("onOffControl").style.display = "block";
+//     } else if (deviceType === "fan") {
+//         document.getElementById("speedControl").style.display = "block";
+//     } else if (deviceType === "ac") {
+//         document.getElementById("acControl").style.display = "flex";
+//     }
+// });
+
 document.getElementById("device").addEventListener("change", function () {
-    let deviceType = this.value;
+    const selectedId = this.value;
+    const selectedDevice = devicesMap[selectedId];
+
+    if (!selectedDevice) return;
+
+    // Hide all control sections first
     document.getElementById("onOffControl").style.display = "none";
     document.getElementById("speedControl").style.display = "none";
     document.getElementById("acControl").style.display = "none";
 
-    if (deviceType === "light") {
+    // Show only the relevant section based on device type
+    if (selectedDevice.type === "light") {
         document.getElementById("onOffControl").style.display = "block";
-    } else if (deviceType === "fan") {
+    } else if (selectedDevice.type === "fan") {
         document.getElementById("speedControl").style.display = "block";
-    } else if (deviceType === "ac") {
-        document.getElementById("acControl").style.display = "flex";
+    } else if (selectedDevice.type === "ac") {
+        document.getElementById("acControl").style.display = "block";
     }
+});
+
+
+function toggleTimeFields() {
+    var sensorType = document.getElementById("sensor").value;
+    var timeFields = document.getElementById("time_fields");
+    var conditionValue = document.getElementById("value");
+
+    if (sensorType === "time") {
+        timeFields.style.display = "block";
+        conditionValue.style.display = "none"; // Hide number input
+    } else {
+        timeFields.style.display = "none";
+        conditionValue.style.display = "block"; // Show number input
+    }
+}
+
+let devicesMap = {};
+document.addEventListener("DOMContentLoaded", async function () {
+    const deviceDropdown = document.getElementById("device");
+
+    fetch(`${API_BASE_URL}/rooms/get_devices`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(devices => {
+        const deviceDropdown = document.getElementById("device");
+
+        if (!Array.isArray(devices)) {
+            throw new Error("Invalid JSON format received");
+        }
+
+        // Clear existing options
+        deviceDropdown.innerHTML = `<option value="" disabled selected>Select a device</option>`;
+
+        // Populate dropdown
+        devices.forEach(device => {
+            const option = document.createElement("option");
+            option.value = device.id;
+            option.textContent =  `${device.name} (${device.room_name})`;
+            deviceDropdown.appendChild(option);
+            devicesMap[device.id] = device;
+            console.log(devicesMap)
+        });
+    })
+    .catch(error => console.error("Error fetching devices:", error));
 });
 
 document.getElementById("saveRule").addEventListener("click", function () {
     const sensor_type = document.getElementById("sensor").value;
     const condition_type = document.getElementById("condition").value;
     const condition_value = parseFloat(document.getElementById("value").value);
-    const device = document.getElementById("device").value; 
-    // Ensuring action type comes from ENUM values
-    if (device === "light") {
-        action_type = "toggle";
-        action_value = document.getElementById("onOff")?.value || null; // 'on' or 'off'
-    } else if (device === "fan") {
-        action_type = "fan_speed";
-        action_value = parseInt(document.getElementById("speed")?.value) || null; // 1-5
-    } else if (device === "ac") {
-        action_type = "ac_control";
+    const deviceId = document.getElementById("device").value;
+    const time = document.getElementById("condition_time").value;
+    console.log(time);
 
-        const acMode = document.getElementById("acMode").value;
-        const acTemp = parseInt(document.getElementById("acTemp").value) || null;
-        const acFanSpeed = parseInt(document.getElementById("acPower").value) || null;
-
-        action_value = {
-            ac_mode: acMode,
-            temperature: acTemp,
-            fan_speed: acFanSpeed
-        };
+    const selectedDevice = devicesMap[deviceId];
+    if (!selectedDevice) {
+        console.error("Invalid device selected");
+        return;
     }
-    // Action values initialization
+
+    const device_type = selectedDevice.type;
+    let action_type = "";
     let toggle_state = null;
     let fan_speed = null;
     let ac_mode = null;
     let temperature = null;
     let power_state = null;
 
-    if (action_type === "toggle") {
-        toggle_state = document.getElementById("onOff").value; // "on" or "off"
-    } else if (action_type === "fan_speed") {
-        fan_speed = parseInt(document.getElementById("speed").value); // 0 to 4
-    } else if (action_type === "ac_control") {
-        ac_mode = document.getElementById("acMode")?.value || null; // "cool", "fan", "hot"
-        temperature = parseInt(document.getElementById("acTemp")?.value) || null; // 16 to 30
-        power_state = document.getElementById("acPower")?.value || null; // "on" or "off"
+    if (device_type === "light") {
+        action_type = "toggle";
+        toggle_state = document.getElementById("onOff")?.value || null;
+    } else if (device_type === "fan") {
+        action_type = "fan_speed";
+        fan_speed = parseInt(document.getElementById("speed")?.value) || null;
+    } else if (device_type === "ac") {
+        action_type = "ac_control";
+        
+        ac_mode= document.getElementById("acMode")?.value || null,
+        temperature= parseInt(document.getElementById("acTemp")?.value) || null,
+        power_state= parseInt(document.getElementById("acPower")?.value) || null
+    
     }
 
-    // Creating JSON object for API request
     const ruleData = {
         sensor_type,
         condition_type,
-        condition_value,
+        condition_value: isNaN(condition_value) ? null : condition_value,
         action_type,
+        time,
         toggle_state,
         fan_speed,
         ac_mode,
         temperature,
-        power_state
+        power_state,
+        device_id: deviceId
     };
 
     console.log("Sending Rule:", ruleData);
 
-    fetch("http://127.0.0.1:5000/rules", {
+    fetch(`${API_BASE_URL}/rules`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(ruleData)
@@ -113,7 +181,7 @@ document.getElementById("saveRule").addEventListener("click", function () {
     .then(data => {
         console.log("Response:", data);
         if (data.id) {
-            fetchRules();
+            fetchRules(); // Refresh the rule list
         }
     })
     .catch(error => console.error("Error:", error));
@@ -121,14 +189,16 @@ document.getElementById("saveRule").addEventListener("click", function () {
 
 function fetchRules() {
     // Fetch favorite rules first
-    fetch("http://127.0.0.1:5000/favorites")
+    fetch(`${API_BASE_URL}/favorites`)
         .then(response => response.json())
         .then(favoriteRules => {
-            fetch("http://127.0.0.1:5000/rules")
+            fetch(`${API_BASE_URL}/rules`)
                 .then(response => response.json())
                 .then(rules => {
                     const rulesContainer = document.getElementById("rulesList");
                     rulesContainer.innerHTML = ""; // Clear old rules
+
+
 
                     rules.forEach(rule => {
                         console.log(rule);
@@ -138,6 +208,14 @@ function fetchRules() {
                 .catch(error => console.error("Error fetching rules:", error));
         })
         .catch(error => console.error("Error fetching favorites:", error));
+}
+
+function formatTime(timeString) {
+    if (!timeString) return "";  // Handle null/undefined cases
+    let [hours, minutes] = timeString.split(":").map(Number);  // Extract hours & minutes
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;  // Convert 24-hour to 12-hour format
+    return `${hours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 }
 
 function addRuleToList(rule, ruleId, favoriteRules) {
@@ -162,17 +240,19 @@ function addRuleToList(rule, ruleId, favoriteRules) {
         actionDesc = `Set AC ${parts.join(", ")}`;
     
     } else if (rule.action_type === "fan_speed") {
-        actionDesc = `Set fan speed to ${rule.fan_speed}`;
+        actionDesc = `Set ${rule.device_name}'s(${rule.room_name}) speed to ${rule.fan_speed ?? 0}`;
     } else if (rule.action_type === "toggle") {
-        actionDesc = `Turn ${rule.toggle_state}`;
+        actionDesc = `Turn ${rule.toggle_state} ${rule.device_name}(${rule.room_name})`;
     }
 
     // Check if the rule is a favorite
     const isFavorite = favoriteRules.includes(ruleId);
-
+    const comparisonWord = (rule.condition_type === "equal") ? "to" : "than";
+    
     ruleElement.innerHTML = `
         <span class="rule-name">
-            If ${rule.sensor_type} is ${rule.condition_type} than ${rule.condition_value}, ${actionDesc}
+            If ${rule.sensor_type} is ${rule.condition_type} ${comparisonWord} 
+            ${rule.condition_value ? rule.condition_value : formatTime(rule.time)}, ${actionDesc}
         </span>
         <div class="rule-buttons">
             <button class="edit-btn" onclick='openRulePopup(${JSON.stringify(rule)})'>Edit</button>
@@ -186,7 +266,7 @@ function addRuleToList(rule, ruleId, favoriteRules) {
 
 function deleteRule(ruleId) {
     console.log(ruleId);
-    fetch(`http://127.0.0.1:5000/rules/${ruleId}`, { method: "DELETE" })
+    fetch(`${API_BASE_URL}/rules/${ruleId}`, { method: "DELETE" })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
@@ -231,7 +311,7 @@ function openRulePopup(rule = null) {
     saveBtn.onclick = rule ? () => updateRule(rule.id) : saveNewRule;
 }
 function fetchFavorites() {
-    fetch("http://127.0.0.1:5000/favorites")
+    fetch(`${API_BASE_URL}/favorites`)
         .then(response => response.json())
         .then(favorites => {
             const favoriteContainer = document.getElementById("favoriteRules");
@@ -250,7 +330,7 @@ function toggleFavorite(ruleId, button) {
     const isFavorite = button.classList.contains("favorite");
 
     if (isFavorite) {
-        fetch(`http://127.0.0.1:5000/favorites/${ruleId}`, { method: "DELETE" })
+        fetch(`${API_BASE_URL}/favorites/${ruleId}`, { method: "DELETE" })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -261,7 +341,7 @@ function toggleFavorite(ruleId, button) {
             })
             .catch(error => console.error("Error:", error));
     } else {
-        fetch(`http://127.0.0.1:5000/favorites/${ruleId}`, { method: "POST" })
+        fetch(`${API_BASE_URL}/favorites/${ruleId}`, { method: "POST" })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -315,3 +395,33 @@ themeToggleButton.addEventListener('click', () => {
     // Immediately update the button text
     updateButtonText();
 });
+
+
+// Sidebar Rooms fetch and update
+document.addEventListener("DOMContentLoaded", function () {
+    fetchRooms();
+});
+
+let rooms = [];
+function fetchRooms() {
+    fetch(`${API_BASE_URL}/rooms`)
+        .then(response => response.json())
+        .then(data => {
+            rooms = data;
+            renderSidebarRooms();
+        });
+}
+function renderSidebarRooms() {
+    const sidebarRoomList = document.getElementById("sidebarRoomList");
+    sidebarRoomList.innerHTML = "";
+
+    rooms.forEach((room, index) => {
+        const li = document.createElement("li");
+        li.innerText = room.name;
+        li.onclick = () => {
+            switchRoom(index);
+            selectMenu(li); // Optionally highlight the selected item
+        };
+        sidebarRoomList.appendChild(li);
+    });
+}

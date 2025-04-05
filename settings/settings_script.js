@@ -1,3 +1,7 @@
+function logout() {
+    localStorage.removeItem("authToken");
+    window.location.href = "../login/login.html";
+}
 
 // Get the button and attach event listener
 const themeToggleButton = document.getElementById('theme-toggle');
@@ -119,8 +123,24 @@ function fetchRooms() {
             rooms = data;
             console.log(rooms);
             renderRooms();
+            renderSidebarRooms();
             switchRoom(0);
         });
+}
+
+function renderSidebarRooms() {
+    const sidebarRoomList = document.getElementById("sidebarRoomList");
+    sidebarRoomList.innerHTML = "";
+
+    rooms.forEach((room, index) => {
+        const li = document.createElement("li");
+        li.innerText = room.name;
+        li.onclick = () => {
+            switchRoom(index);
+            selectMenu(li); // Optionally highlight the selected item
+        };
+        sidebarRoomList.appendChild(li);
+    });
 }
 
 function renderRooms() {
@@ -380,3 +400,25 @@ window.onclick = function(event) {
         document.getElementById("deviceModal").style.opacity = "0";
     }
 };
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("http://127.0.0.1:5000/user/latest")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch user data");
+            }
+            return response.json();
+        })
+        .then(user => {
+            document.getElementById("display-username").textContent = user.username;
+            document.getElementById("display-email").textContent = user.email;
+
+            // Optionally update welcome message too
+            document.querySelector(".profile-picture p").textContent = `Welcome, ${user.username}`;
+        })
+        .catch(error => {
+            console.error("Error loading user info:", error);
+        });
+});
+

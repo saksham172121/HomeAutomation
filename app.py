@@ -5,9 +5,10 @@ import paho.mqtt.publish as publish
 import json
 import logging
 import paho.mqtt.client as mqtt
-import threading
 from datetime import datetime
-import os
+from datetime import timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+import pytz
 
 app = Flask(__name__)
 CORS(app)  # Allows frontend requests
@@ -25,6 +26,9 @@ DB_CONFIG = {
     "password": "your_password",
     "database": "home_automation"
 }
+# Database Connection Function
+def connect_db():
+    return mysql.connector.connect(**DB_CONFIG)
 # MQTT Configuration
 MQTT_BROKER = "broker.mqtt.cool"
 MQTT_TOPIC_TEMPERATURE = "home/temperature"
@@ -47,41 +51,135 @@ def on_message(client, userdata, msg):
     value = msg.payload.decode()
     
     if topic == MQTT_TOPIC_TEMPERATURE:
+        sensor_type = "temperature"
         sensor_data["temperature"] = float(value)
     elif topic == MQTT_TOPIC_HUMIDITY:
+        sensor_type = "humidity"
         sensor_data["humidity"] = float(value)
         
     
-        
     save_sensor_data(sensor_data["temperature"], sensor_data["humidity"])
+    check_rules_against_sensor(sensor_type, value)
     
 mqtt_client.on_message = on_message
 mqtt_client.loop_start()
 
-# Database Connection Function
-def connect_db():
-    return mysql.connector.connect(**DB_CONFIG)
+def check_rules_against_sensor(sensor_type, sensor_value):
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
 
-# Function to Execute Actions
-def trigger_action(action):
-    if action.startswith("turn on") or action.startswith("turn off"):
-        device = action.split("turn ")[1]  # Extract device name
-        state = action.split(" ")[1]
-        publish.single(MQTT_TOPIC_DEVICE_CONTROL + device, state, hostname=MQTT_BROKER)
-    elif "set ac mode" in action:
-        mode = action.split("set ac mode ")[1]
-        publish.single(MQTT_TOPIC_AC_MODE, mode, hostname=MQTT_BROKER)
-    elif "set ac fan speed" in action:
-        speed = action.split("set ac fan speed ")[1]
-        publish.single(MQTT_TOPIC_AC_FAN, speed, hostname=MQTT_BROKER)
-    elif action == "increase ac temp":
-        publish.single(MQTT_TOPIC_AC_TEMP, "up", hostname=MQTT_BROKER)
-    elif action == "decrease ac temp":
-        publish.single(MQTT_TOPIC_AC_TEMP, "down", hostname=MQTT_BROKER)
-    elif action == "power on ac":
-        publish.single(MQTT_TOPIC_AC_POWER, "on", hostname=MQTT_BROKER)
-    elif action == "power off ac":
-        publish.single(MQTT_TOPIC_AC_POWER, "off", hostname=MQTT_BROKER)
+    cursor.execute("""
+        SELECT ar.*, av.*
+        FROM automation_rules ar
+        LEFT JOIN action_values av ON ar.id = av.rule_id
+        WHERE ar.sensor_type = %s AND ar.condition_time IS NULL
+    """, (sensor_type,))
+
+    rules = cursor.fetchall()
+
+    for rule in rules:
+        condition_type = rule["condition_type"]
+        condition_value = rule["condition_value"]
+        
+        # print(condition_type)
+        # print(int(condition_value))
+        # print(sensor_value)
+
+        match = False
+        if condition_type == "greater" and int(sensor_value) > int(condition_value):
+            match = True
+        elif condition_type == "less" and int(sensor_value) < int(condition_value):
+            match = True
+        elif condition_type == "equal" and int(sensor_value) == int(condition_value):
+            match = True
+            
+        # print(match)
+
+        if match:
+            trigger_device_automations(rule)
+
+
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+
+def check_time_based_rules():
+    now = datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H:%M")  # Adjust timezone as needed
+
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT ar.*, av.*
+        FROM automation_rules ar
+        LEFT JOIN action_values av ON ar.id = av.rule_id
+        WHERE ar.condition_time IS NOT NULL
+    """)
+    rules = cursor.fetchall()
+    for rule in rules:
+        condition_time = rule["condition_time"]
+        if condition_time:
+            total_seconds = int(condition_time.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            rule_time = f"{hours:02d}:{minutes:02d}"
+            # print(rule_time)
+        else:
+            rule_time = None
+
+        if rule_time == now:
+            print(f"[Time Trigger] Rule matched: {rule['id']}")
+            trigger_device_automations(rule)
+
+scheduler.add_job(check_time_based_rules, 'interval', minutes=1)
+
+def trigger_device_automations(rule):
+    device_id = rule['device_id']
+    action_type = rule['action_type']
+
+    command = {"device_id": device_id, "action_type": action_type}
+
+    if action_type == "toggle":
+        command["toggle"] = rule['toggle_state']
+    elif action_type == "fan_speed":
+        command["fan_speed"] = rule['fan_speed']
+    elif action_type == "ac_control":
+        command.update({
+            "ac_mode": rule['ac_mode'],
+            "temperature": rule['temperature'],
+            "power_state": rule['power_state']
+        })
+
+    print(f"Triggering rule {rule['id']}: {command}")
+    
+    # Publish to MQTT
+    topic = f"home/devices/{device_id}"
+    mqtt_client.publish(topic, json.dumps(command))
+    
+def trigger_device_action(device_id, action_type=None, state=None, fan_speed=None, ac_mode=None, temperature=None):
+    command = {
+        "device_id": device_id,
+        "action_type": action_type
+    }
+
+    if action_type == "toggle":
+        command["toggle"] = state
+    elif action_type == "fan_speed":
+        command["fan_speed"] = fan_speed or 0
+    elif action_type == "ac_control":
+        command.update({
+            "ac_mode": ac_mode or "cool",
+            "temperature": temperature or 24,
+            "power_state": state or "off"
+        })
+
+    print(f"Triggering device manually: {command}")
+    
+    # Publish to MQTT
+    topic = f"home/devices/{device_id}"
+    mqtt_client.publish(topic, json.dumps(command))
+    
+    
         
 def save_sensor_data(temperature, humidity):
     """Stores sensor data in the database."""
@@ -144,6 +242,46 @@ def login():
     else:
         return jsonify({"error": message}), 401
 
+@app.route('/user/latest', methods=['GET'])
+def get_latest_logged_in_user():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Step 1: Get the user_id from the latest successful login
+    cursor.execute("""
+        SELECT user_id 
+        FROM login_logs 
+        WHERE status = 'SUCCESS' 
+        ORDER BY login_time DESC 
+        LIMIT 1
+    """)
+    result = cursor.fetchone()
+
+    if not result:
+        return jsonify({"error": "No successful login found"}), 404
+
+    user_id = result[0]
+
+    # Step 2: Get user details from users table
+    cursor.execute("""
+        SELECT id, username, email
+        FROM users 
+        WHERE id = %s
+    """, (user_id,))
+    user = cursor.fetchone()
+
+    conn.close()
+
+    if user:
+        user_data = {
+            "id": user[0],
+            "username": user[1],
+            "email": user[2]
+        }
+        return jsonify(user_data)
+    else:
+        return jsonify({"error": "User not found"}), 404
+
 
 # API to Get Sensor Data
 @app.route('/sensor-data', methods=['GET'])
@@ -161,20 +299,32 @@ def get_sensor_history():
     return jsonify(data), 200
 
 # API to Control Devices
-@app.route('/device/<device_name>', methods=['POST'])
-def control_device(device_name):
-    data = request.json
-    state = data.get("state")  # "on" or "off"
+@app.route("/device/<int:device_id>", methods=["POST"])
+def trigger_device(device_id):
+    data = request.get_json()
+    state = data.get("state")
 
     if state not in ["on", "off"]:
-        return jsonify({"error": "Invalid state. Use 'on' or 'off'"}), 400
+        return jsonify({"error": "Invalid state"}), 400
 
-    # Publish the state change to MQTT without storing it in the database
-    topic = f"{MQTT_TOPIC_DEVICE_CONTROL}{device_name}"
-    print(topic)
-    publish.single(topic, state, hostname=MQTT_BROKER)
+    try:
+        conn = connect_db()  # Use your existing DB connection function
+        cursor = conn.cursor()
 
-    return jsonify({"message": f"{device_name} turned {state}"}), 200
+        # Update device status
+        cursor.execute("UPDATE devices SET status = %s WHERE id = %s", (state, device_id))
+        conn.commit()
+
+        print(f"Device {device_id} status updated to {state}")
+        return jsonify({"message": f"Device {device_id} set to {state}"})
+    
+    except Exception as e:
+        print("Error updating device:", e)
+        return jsonify({"error": "Failed to update device status"}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 # API to Control AC
 @app.route('/ac', methods=['POST'])
@@ -219,10 +369,25 @@ def get_rules():
         conn = connect_db()
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT r.id, r.sensor_type, r.condition_type, r.condition_value, r.action_type, 
-                   a.toggle_state, a.fan_speed, a.ac_mode, a.temperature, a.power_state
-            FROM automation_rules r
-            LEFT JOIN action_values a ON r.id = a.rule_id;
+                        SELECT 
+                            r.id, 
+                            r.sensor_type, 
+                            r.condition_type, 
+                            r.condition_value, 
+                            r.action_type,
+                            a.toggle_state, 
+                            a.fan_speed, 
+                            a.ac_mode, 
+                            a.temperature, 
+                            a.power_state,  
+                            r.condition_time, 
+                            r.device_id,
+                            d.name AS device_name,
+                            ro.name AS room_name
+                        FROM automation_rules r
+                        LEFT JOIN action_values a ON r.id = a.rule_id
+                        LEFT JOIN devices d ON r.device_id = d.id
+                        LEFT JOIN rooms ro ON d.room_id = ro.id;
         """)
         rules = cursor.fetchall()
         cursor.close()
@@ -239,7 +404,13 @@ def get_rules():
                 "fan_speed": row[6],
                 "ac_mode": row[7],
                 "temperature": row[8],
-                "power_state": row[9]
+                "power_state": row[9],
+                #"condition_time": row[10]
+                "time": str(row[10]) if isinstance(row[10], timedelta) else row[10],  # Convert timedelta to string
+                "device_id": row[11],
+                "device_name": row[12],
+                "room_name": row[13]
+                
             }
             for row in rules
         ]
@@ -261,6 +432,19 @@ def add_rule():
         condition_type = data.get("condition_type")
         condition_value = data.get("condition_value")
         action_type = data.get("action_type")
+        device_id = data.get("device_id")
+        # time = datetime.strptime(data.get("time"), "%H:%M").strftime("%H:%M:%S")
+        time = data.get("time")
+        if time:
+            try:
+                condition_time = datetime.strptime(time, "%H:%M").strftime("%H:%M:%S")
+            except ValueError:
+                return jsonify({"error": "Invalid time format", "details": f"time data '{time}' does not match format '%H:%M'"}), 400
+        else:
+            condition_time = None
+        # print(time)
+        
+        
 
         # Extract action-specific values
         toggle_state = data.get("toggle_state") if action_type == "toggle" else None
@@ -268,9 +452,9 @@ def add_rule():
         ac_mode = data.get("ac_mode") if action_type == "ac_control" else None
         temperature = data.get("temperature") if action_type == "ac_control" else None
         power_state = data.get("power_state") if action_type == "ac_control" else None
-
+        
         # Validate required fields
-        if not all([sensor_type, condition_type, condition_value, action_type]):
+        if not all([sensor_type, condition_type, action_type]) and not (condition_value or time):
             return jsonify({"error": "Missing required fields"}), 400
 
         conn = connect_db()
@@ -278,9 +462,9 @@ def add_rule():
 
         # Insert into automation_rules
         cursor.execute("""
-            INSERT INTO automation_rules (sensor_type, condition_type, condition_value, action_type)
-            VALUES (%s, %s, %s, %s)
-        """, (sensor_type, condition_type, condition_value, action_type))
+            INSERT INTO automation_rules (sensor_type, condition_type, condition_value, action_type, condition_time, device_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (sensor_type, condition_type, condition_value, action_type, condition_time, device_id))
         
         rule_id = cursor.lastrowid  # Get the newly inserted rule's ID
 
@@ -406,15 +590,28 @@ def get_favorite_descriptions():
         conn = connect_db()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("""
-            SELECT ar.id, ar.sensor_type, ar.condition_type, ar.condition_value, ar.action_type,
-                   av.toggle_state, av.fan_speed, av.ac_mode, av.temperature, av.power_state
-            FROM automation_rules ar
-            LEFT JOIN action_values av ON ar.id = av.rule_id
-            WHERE ar.is_favorite = 1
-            LIMIT 4;
+                        SELECT 
+                            ar.id, 
+                            ar.sensor_type, 
+                            ar.condition_type, 
+                            ar.condition_value, 
+                            ar.action_type,
+                            av.toggle_state, 
+                            av.fan_speed, 
+                            av.ac_mode, 
+                            av.temperature, 
+                            av.power_state,
+                            d.name AS device_name,
+                            rm.name AS room_name
+                        FROM automation_rules ar
+                        LEFT JOIN action_values av ON ar.id = av.rule_id
+                        LEFT JOIN devices d ON ar.device_id = d.id
+                        LEFT JOIN rooms rm ON d.room_id = rm.id
+                        WHERE ar.is_favorite = 1
+                        LIMIT 4;
         """)
         favorites = cursor.fetchall()
-        print(favorites)
+        # print(favorites)
         cursor.close()
         conn.close()
 
@@ -429,11 +626,11 @@ def get_favorite_descriptions():
                     parts.append(f"Mode: {rule['ac_mode']}")
                 if rule["power_state"]:
                     parts.append(f"Power: {rule['power_state']}")
-                action_desc = f"Set AC {', '.join(parts)}"
+                action_desc = f"Set {rule['device_name']}({rule['room_name']}) {', '.join(parts)}"
             elif rule["action_type"] == "fan_speed":
-                action_desc = f"Set fan speed to {rule['fan_speed']}"
+                action_desc = f"Set {rule['device_name']}({rule['room_name']}) to {rule['fan_speed']}"
             elif rule["action_type"] == "toggle":
-                action_desc = f"Turn {rule['toggle_state']}"
+                action_desc = f"Turn {rule['toggle_state']} {rule['device_name']}({rule['room_name']})"
             
             return f"If {rule['sensor_type']} is {rule['condition_type']} than {rule['condition_value']}, {action_desc}"
 
@@ -447,7 +644,7 @@ def get_favorite_descriptions():
 
 
 # Get all rooms
-from flask import jsonify
+#from flask import jsonify
 
 @app.route('/rooms', methods=['GET'])
 def get_rooms():
@@ -495,8 +692,27 @@ def delete_room(room_id):
     return jsonify({"message": "Room deleted"})
 
 # ------------------- DEVICE ROUTES -------------------
+#get all devices
+@app.route('/rooms/get_devices')
+def get_all_devices():
+    try:
+        conn = connect_db()
+        cursor = conn.cursor(dictionary=True)  # Returns results as dicts
 
-# Get devices in a room
+        cursor.execute("""
+            SELECT devices.id, devices.name, devices.type, devices.room_id, rooms.name AS room_name 
+            FROM devices 
+            JOIN rooms ON devices.room_id = rooms.id
+        """)
+
+        devices = cursor.fetchall()
+        return jsonify(devices)  # Returns a JSON array of devices with room names
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors safely
+    
+    
+# Get specific devices in a room
 @app.route('/rooms/<int:room_id>/devices', methods=['GET'])
 def get_devices(room_id):
     conn = connect_db()

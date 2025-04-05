@@ -17,9 +17,10 @@
     <h2>Home Automator</h2>
     <ul>
         <li>Devices</li>
-        <li onclick="selectMenu(this)">Room 1</li>
-        <li onclick="selectMenu(this)">Room 2</li>
-        <li onclick="selectMenu(this, '../Automations/automations.html')">Automations</li>
+        <ul id="sidebarRoomList">
+            <!-- Room buttons will be injected here -->
+        </ul>
+        <li onclick="selectMenu(this, '../automations/automations.html')">Automations</li>
         <li onclick="selectMenu(this, '../settings/settings.html')">Settings</li>
     </ul>
     <button onclick="logout()">Logout</button>
@@ -32,13 +33,16 @@
 <section class="section main1">
     <!-- Main Content -->
     <div class="main-content">
-        <h1 class="heading">Welcome, User</h1>
+        <h1 class="heading" id="welcome_tag">Welcome, User</h1>
 
         <!-- Room Selector -->
         <div class="room-selector">
-            <div class="room-slider"></div>
-            <button class="room-btn active" onclick="switchRoom(0)">Room 1</button>
-            <button class="room-btn" onclick="switchRoom(1)">Room 2</button>
+            <!-- <div class="room-slider"></div> -->
+            <!-- <button class="room-btn active" onclick="switchRoom(0)">Room 1</button>
+            <button class="room-btn" onclick="switchRoom(1)">Room 2</button> -->
+
+            <div class="room-slider" id="roomSlider"></div>
+            <div id="roomButtons"></div>
         </div>
         <div class="container" id="tile-grid">
 
@@ -64,77 +68,7 @@
         <div class="mobile_bigtile_flex" style="display: contents;">
             <div class="tile big-tile">
                 <div class="device-list-container">
-                    <ul class="device-list">
-                        <li class="device-item">
-                            <span>Device 1</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device1">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 2</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device2">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 3</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device3">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 4</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device4">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 5</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device5">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 6</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device6">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 7</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device7">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 8</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device8">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 9</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device9">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
-                        <li class="device-item">
-                            <span>Device 10</span>
-                            <label class="switch">
-                                <input type="checkbox" data-device="device10">
-                                <span class="slider"></span>
-                            </label>
-                        </li>
+                    <ul class="device-list" id="deviceList">
                         
                     </ul>
                 </div>

@@ -3,34 +3,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!token) {
         alert("Access denied. Please log in first.");
-        window.location.href = "../Login Page/login.html"; // Redirect to login if no token
+        window.location.href = "../login/login.html"; // Redirect to login if no token
     }
 });
 function logout() {
     localStorage.removeItem("authToken");
-    window.location.href = "../Login Page/login.html";
+    window.location.href = "../login/login.html";
 }
-// Toggle Sidebar
-function toggleSidebar() {
-    document.querySelector(".sidebar").classList.toggle("hidden");
-}
+
 // Highlight Active Menu
-function selectMenu(element, page) {
+function selectMenu(element, page = null) {
     document.querySelectorAll(".sidebar li").forEach(item => item.classList.remove("active"));
     element.classList.add("active");
     window.location.href = page;
 }
 
-// Switch Room
-function switchRoom(index) {
-    const slider = document.querySelector(".room-slider");
-    const buttons = document.querySelectorAll(".room-btn");
-
-    slider.style.transform = `translateX(${index * 100}%)`;
-
-    buttons.forEach(btn => btn.classList.remove("active"));
-    buttons[index].classList.add("active");
-}
 function toggleSidebar() {
     let sidebar = document.querySelector(".sidebar");
     let mainContent = document.querySelector(".main-content");
@@ -44,6 +31,9 @@ function toggleSidebar() {
     } else {
         hamburger.style.display = "none";
     }
+}
+function toggleSidebar() {
+    document.querySelector(".sidebar").classList.toggle("hidden");
 }
 
 
@@ -377,25 +367,28 @@ function updateChart_humidity(labels, humData) {
 // Fetch data every 10 seconds
 setInterval(fetchSensorHistory, 10000);
 fetchSensorHistory();
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("deviceList"); // parent element that holds all the .device-item elements
 
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".device-item input[type='checkbox']").forEach(checkbox => {
-        checkbox.addEventListener("change", function() {
-            const deviceName = this.getAttribute("data-device"); // Get device name
-            const state = this.checked ? "on" : "off"; // Determine state
+    container.addEventListener("change", function (event) {
+        const checkbox = event.target;
+        if (checkbox.matches("input[type='checkbox'][data-device]")) {
+            const deviceId = checkbox.getAttribute("data-device");
+            const state = checkbox.checked ? "on" : "off";
 
-            fetch(`http://127.0.0.1:5000/device/${deviceName}`, {
+            console.log("Toggling device ID:", deviceId, "to", state);
+
+            fetch(`http://127.0.0.1:5000/device/${deviceId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ state: state })
+                body: JSON.stringify({ state: state }),
             })
             .then(response => response.json())
-            .then(data => console.log(data.message))
-            .catch(error => console.error("Error:", error));
-        });
+            .then(data => console.log("Response:", data))
+            .catch(error => console.error("Fetch error:", error));
+        }
     });
 });
-
 
 
 function fetchFavoriteDescriptions() {
@@ -406,6 +399,7 @@ function fetchFavoriteDescriptions() {
 
             tiles.forEach((tile, index) => {
                 if (favorites[index]) {
+                    console.log(favorites[index].description);
                     tile.textContent = favorites[index].description;
                 } else {
                     tile.textContent = "No favorite rule assigned";
@@ -417,10 +411,6 @@ function fetchFavoriteDescriptions() {
 
 // Call this function on page load
 document.addEventListener("DOMContentLoaded", fetchFavoriteDescriptions);
-
-
-
-
 
 
 // Get the button and attach event listener
@@ -461,3 +451,138 @@ themeToggleButton.addEventListener('click', () => {
     // Immediately update the button text
     updateButtonText();
 });
+
+
+// Update the Welcome, user tag at the top
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("http://127.0.0.1:5000/user/latest")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch user data");
+            }
+            return response.json();
+        })
+        .then(user => {
+            document.getElementById("welcome_tag").textContent = `Welcome, ${user.username}`;
+
+        })
+        .catch(error => {
+            console.error("Error loading user info:", error);
+        });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    fetchRooms();
+});
+
+
+let rooms = [];
+let selectedRoomIndex = 0;
+
+function fetchRooms() {
+    fetch("http://127.0.0.1:5000/rooms")
+        .then(response => response.json())
+        .then(data => {
+            rooms = data;
+            console.log(rooms);
+            renderRooms();
+            renderSidebarRooms();
+            switchRoom(0);
+        });
+}
+
+function renderRooms() {
+    const roomButtonsContainer = document.getElementById("roomButtons");
+    const slider = document.getElementById("roomSlider");
+
+    roomButtonsContainer.innerHTML = "";
+    rooms.forEach((room, index) => {
+        const button = document.createElement("button");
+        button.classList.add("room-btn");
+        button.innerText = room.name;
+        button.onclick = () => switchRoom(index);
+        roomButtonsContainer.appendChild(button);
+    });
+
+    if (rooms.length > 0) {
+        slider.style.width = `${100 / rooms.length}%`;
+    }
+}
+
+function switchRoom(index) {
+    selectedRoomIndex = index;
+    const slider = document.getElementById("roomSlider");
+    const buttons = document.querySelectorAll(".room-btn");
+
+    if (!buttons[index]) return; // Prevent errors if index is out of bounds
+
+    const activeButton = buttons[index];
+    const buttonWidth = activeButton.scrollWidth; // Get button text width
+    const buttonLeft = activeButton.offsetLeft;   // Get button position
+
+    // Set slider width & position dynamically
+    slider.style.width = `${buttonWidth}px`;
+    slider.style.transform = `translateX(${buttonLeft}px)`;
+
+    // Update active state for buttons
+    buttons.forEach((btn, i) => btn.classList.toggle("active", i === index));
+
+    if (rooms && rooms[index]) {
+        fetchDevices(rooms[index].id);
+    }
+}
+
+
+function renderSidebarRooms() {
+    const sidebarRoomList = document.getElementById("sidebarRoomList");
+    sidebarRoomList.innerHTML = "";
+
+    rooms.forEach((room, index) => {
+        const li = document.createElement("li");
+        li.innerText = room.name;
+        li.style.cursor = "pointer";
+
+        li.addEventListener("click", (e) => {
+            switchRoom(index);
+            // selectMenu(li); // Optional UI highlight
+        });
+
+        sidebarRoomList.appendChild(li);
+    });
+}
+
+
+// Get devices and update the main page
+function fetchDevices(roomId) {
+    fetch(`http://127.0.0.1:5000/rooms/${roomId}/devices`)
+        .then(response => response.json())
+        .then(devices => {
+            const deviceList = document.getElementById("deviceList");
+            deviceList.innerHTML = ""; // Clear current list
+
+            if (devices.length === 0) {
+                deviceList.innerHTML = "<li class='device-item'>No devices in this room.</li>";
+                return;
+            }
+
+            devices.forEach(device => {
+                const li = document.createElement("li");
+                li.classList.add("device-item");
+
+                li.innerHTML = `
+                    <span>${device.name}</span>
+                    <label class="switch">
+                        <input type="checkbox" data-device="${device.id}" ${device.status === "on" ? "checked" : ""}>
+                        <span class="slider"></span>
+                    </label>
+                `;
+
+                deviceList.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching devices:", error);
+        });
+}

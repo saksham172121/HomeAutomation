@@ -204,6 +204,9 @@ body {
 .sidebar button:active {
     transform: scale(0.95);
 }
+#sidebarRoomList li{
+    padding-left: 12% ;
+}
 /* MAIN CONTENT NOW */
 .main-container {
     position: relative;
